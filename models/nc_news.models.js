@@ -30,3 +30,16 @@ exports.fetchArticleById = (article_id) => {
 		return result.rows;
 	});
 };
+
+exports.fetchArticles = () => {
+	const query = `
+	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
+	FROM articles
+	JOIN comments ON articles.article_id = comments.article_id
+	GROUP BY articles.author,title,topic,articles.created_at,articles.votes,article_img_url
+	ORDER BY created_at DESC
+	`;
+	return db.query(query).then((result) => {
+		return result.rows;
+	});
+};
