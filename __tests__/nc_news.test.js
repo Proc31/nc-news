@@ -12,6 +12,12 @@ afterAll(() => {
 	db.end();
 });
 
+describe('Error handling for invalid endpoints', () => {
+	test('GET:404 invalid endpoint given', () => {
+		return request(app).get('/api/cheese').expect(404);
+	});
+});
+
 describe('GET /api/topics', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
@@ -22,7 +28,8 @@ describe('GET /api/topics', () => {
 				.get('/api/topics')
 				.expect(200)
 				.then(({ body }) => {
-					const topics = body;
+					const topics = body.topics;
+					expect(topics).toHaveLength(3);
 					topics.forEach((topic) => {
 						expect(typeof topic.slug).toBe('string');
 						expect(typeof topic.description).toBe('string');
@@ -30,5 +37,5 @@ describe('GET /api/topics', () => {
 				});
 		});
 	});
-	describe('Endpoint error handling', () => {});
 });
+
