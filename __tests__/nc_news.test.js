@@ -5,6 +5,7 @@ const data = require('../db/data/test-data/index');
 const seed = require('../db/seeds/seed');
 const endpoints = require('../endpoints.json');
 require('jest-sorted');
+require('jest-sorted');
 
 beforeEach(() => {
 	return seed(data);
@@ -117,6 +118,57 @@ describe('GET /api/articles/:article_id', () => {
 	});
 });
 
+describe('GET /api/articles/:article_id/comments', () => {
+	describe('Endpoint Behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app).get('/api/articles/1/comments').expect(200);
+		});
+		test('GET:200 expects correct comment format & correct quantity', () => {
+			return request(app)
+				.get('/api/articles/1/comments')
+				.then(({ body }) => {
+					const comments = body.comments;
+					expect(comments).toHaveLength(11);
+					comments.forEach((comment) => {
+						expect(typeof comment.comment_id).toBe('number');
+						expect(typeof comment.votes).toBe('number');
+						expect(typeof comment.created_at).toBe('string');
+						expect(typeof comment.author).toBe('string');
+						expect(typeof comment.body).toBe('string');
+						expect(typeof comment.article_id).toBe('number');
+					});
+				});
+		});
+		test('GET:200 expects correct ordered by default from newest ASC', () => {
+			return request(app)
+				.get('/api/articles/1/comments')
+				.then(({ body }) => {
+					const comments = body.comments;
+					expect(comments).toBeSortedBy('created_at', {
+						descending: false,
+					});
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('GET:404 expects error when ID does not exist', () => {
+			return request(app)
+				.get('/api/articles/600/comments')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('Article ID does not exist');
+				});
+		});
+		test('GET:400 expects error when ID not a valid type', () => {
+			return request(app)
+				.get('/api/articles/cheese/comments')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('Article ID must be a number');
+				});
+		});
+	});
+});
 describe('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
