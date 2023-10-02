@@ -1,9 +1,4 @@
 const db = require('../db/connection');
-const api = require('../endpoints.json');
-
-exports.fetchApi = () => {
-	return { api };
-};
 
 exports.fetchTopics = () => {
 	const query = `
@@ -13,4 +8,3 @@ exports.fetchTopics = () => {
 		return result.rows;
 	});
 };
-
