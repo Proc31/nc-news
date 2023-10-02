@@ -1,5 +1,9 @@
 const api = require('../endpoints.json');
-const { fetchTopics, fetchArticleById } = require('../models/nc_news.models');
+const {
+	fetchTopics,
+	fetchArticleById,
+	fetchArticles,
+} = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
 	res.status(200).send({ api });
@@ -24,4 +28,10 @@ exports.getArticleById = (req, res, next) => {
 		.catch((err) => {
 			next(err);
 		});
+};
+
+exports.getArticles = (req, res, next) => {
+	fetchArticles().then((data) => {
+		res.status(200).send({ articles: data });
+	});
 };
