@@ -6,7 +6,7 @@ exports.getApi = (req, res, next) => {
 };
 
 exports.getTopics = (req, res, next) => {
-	fetchTopics()
+	return fetchTopics()
 		.then((data) => {
 			res.status(200).send({ topics: data });
 		})
