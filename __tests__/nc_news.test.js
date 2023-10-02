@@ -3,6 +3,7 @@ const app = require('../app');
 const db = require('../db/connection');
 const data = require('../db/data/test-data/index');
 const seed = require('../db/seeds/seed');
+const endpoints = require('../endpoints.json');
 
 beforeEach(() => {
 	return seed(data);
@@ -39,3 +40,18 @@ describe('GET /api/topics', () => {
 	});
 });
 
+describe('GET /api', () => {
+	describe('Endpoint behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app).get('/api').expect(200);
+		});
+		test('GET:200 expects response to match endpoints file', () => {
+			return request(app)
+				.get('/api')
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.api).toEqual(endpoints);
+				});
+		});
+	});
+});
