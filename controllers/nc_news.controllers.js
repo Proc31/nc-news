@@ -4,6 +4,7 @@ const {
 	fetchArticleById,
 	fetchComments,
 	fetchArticles,
+	removeCommentById,
 } = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
@@ -37,12 +38,24 @@ exports.getArticles = (req, res, next) => {
 	});
 };
 
-
 exports.getCommentsByArticleId = (req, res, next) => {
 	const { article_id } = req.params;
 	fetchComments(article_id)
 		.then((response) => {
 			res.status(200).send({ comments: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
+};
+
+exports.deleteCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	removeCommentById(comment_id)
+		.then((response) => {
+			if (response) {
+				res.status(204).send();
+			}
 		})
 		.catch((err) => {
 			next(err);
