@@ -4,6 +4,7 @@ const {
 	getTopics,
 	getArticleById,
 	getArticles,
+	getCommentsByArticleId,
 } = require('./controllers/nc_news.controllers');
 
 const app = express();
@@ -12,6 +13,7 @@ app.get('/api', getApi);
 app.get('/api/topics', getTopics);
 app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles', getArticles);
+app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 
 app.use((err, req, res, next) => {
 	if (err.status && err.msg) {
@@ -22,7 +24,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-	res.status(400).send({ msg: 'Bad request' });
+	res.status(500).send({ msg: 'Internal Server Error' });
 });
 
 module.exports = app;

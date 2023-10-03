@@ -41,5 +41,20 @@
 				"article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
 			}
 		}
+	},
+	"GET /api/articles/:article_id/comments": {
+		"description": "Serves the comments for a specific article",
+		"exampleResponse": {
+			"comments": [
+				{
+					"comment_id": 1,
+					"votes": 100,
+					"created_at": 1586179020000,
+					"author": "butter_bridge",
+					"body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+					"article_id": 9
+				}
+			]
+		}
 	}
 }

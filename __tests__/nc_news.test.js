@@ -5,6 +5,7 @@ const data = require('../db/data/test-data/index');
 const seed = require('../db/seeds/seed');
 const endpoints = require('../endpoints.json');
 require('jest-sorted');
+require('jest-sorted');
 
 beforeEach(() => {
 	return seed(data);
@@ -103,7 +104,7 @@ describe('GET /api/articles/:article_id', () => {
 				.get('/api/articles/600')
 				.expect(404)
 				.then(({ body }) => {
-					expect(body.msg).toBe('Article ID does not exist');
+					expect(body.msg).toBe('article_id does not exist');
 				});
 		});
 		test('GET:400 expects error when ID not a valid type', () => {
@@ -112,6 +113,69 @@ describe('GET /api/articles/:article_id', () => {
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe('Article ID must be a number');
+				});
+		});
+	});
+});
+
+describe('GET /api/articles/:article_id/comments', () => {
+	describe('Endpoint Behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app).get('/api/articles/1/comments').expect(200);
+		});
+		test('GET:200 expects correct comment format & correct quantity', () => {
+			return request(app)
+				.get('/api/articles/1/comments')
+				.then(({ body }) => {
+					const obj = {
+						comment_id: expect.any(Number),
+						votes: expect.any(Number),
+						created_at: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						article_id: expect.any(Number),
+					};
+					const comments = body.comments;
+					expect(comments).toHaveLength(11);
+					comments.forEach((comment) => {
+						expect(comment).toMatchObject(obj);
+					});
+				});
+		});
+		test('GET:200 expects correct ordered by default from newest ASC', () => {
+			return request(app)
+				.get('/api/articles/1/comments')
+				.then(({ body }) => {
+					const comments = body.comments;
+					expect(comments).toBeSortedBy('created_at', {
+						descending: true,
+					});
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('GET:404 expects error when ID does not exist', () => {
+			return request(app)
+				.get('/api/articles/600/comments')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id does not exist');
+				});
+		});
+		test('GET:400 expects error when ID not a valid type', () => {
+			return request(app)
+				.get('/api/articles/cheese/comments')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('Article ID must be a number');
+				});
+		});
+		test('GET:200 expects empty array when article has no comments', () => {
+			return request(app)
+				.get('/api/articles/2/comments')
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comments.length).toBe(0);
 				});
 		});
 	});

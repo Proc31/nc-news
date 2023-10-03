@@ -2,6 +2,7 @@ const api = require('../endpoints.json');
 const {
 	fetchTopics,
 	fetchArticleById,
+	fetchComments,
 	fetchArticles,
 } = require('../models/nc_news.models');
 
@@ -34,4 +35,16 @@ exports.getArticles = (req, res, next) => {
 	fetchArticles().then((data) => {
 		res.status(200).send({ articles: data });
 	});
+};
+
+
+exports.getCommentsByArticleId = (req, res, next) => {
+	const { article_id } = req.params;
+	fetchComments(article_id)
+		.then((response) => {
+			res.status(200).send({ comments: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
 };
