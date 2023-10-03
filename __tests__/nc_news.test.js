@@ -104,7 +104,7 @@ describe('GET /api/articles/:article_id', () => {
 				.get('/api/articles/600')
 				.expect(404)
 				.then(({ body }) => {
-					expect(body.msg).toBe('Article ID does not exist');
+					expect(body.msg).toBe('article_id does not exist');
 				});
 		});
 		test('GET:400 expects error when ID not a valid type', () => {
@@ -127,15 +127,18 @@ describe('GET /api/articles/:article_id/comments', () => {
 			return request(app)
 				.get('/api/articles/1/comments')
 				.then(({ body }) => {
+					const obj = {
+						comment_id: expect.any(Number),
+						votes: expect.any(Number),
+						created_at: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						article_id: expect.any(Number),
+					};
 					const comments = body.comments;
 					expect(comments).toHaveLength(11);
 					comments.forEach((comment) => {
-						expect(typeof comment.comment_id).toBe('number');
-						expect(typeof comment.votes).toBe('number');
-						expect(typeof comment.created_at).toBe('string');
-						expect(typeof comment.author).toBe('string');
-						expect(typeof comment.body).toBe('string');
-						expect(typeof comment.article_id).toBe('number');
+						expect(comment).toMatchObject(obj);
 					});
 				});
 		});
@@ -145,7 +148,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 				.then(({ body }) => {
 					const comments = body.comments;
 					expect(comments).toBeSortedBy('created_at', {
-						descending: false,
+						descending: true,
 					});
 				});
 		});
@@ -156,7 +159,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 				.get('/api/articles/600/comments')
 				.expect(404)
 				.then(({ body }) => {
-					expect(body.msg).toBe('Article ID does not exist');
+					expect(body.msg).toBe('article_id does not exist');
 				});
 		});
 		test('GET:400 expects error when ID not a valid type', () => {
@@ -167,8 +170,17 @@ describe('GET /api/articles/:article_id/comments', () => {
 					expect(body.msg).toBe('Article ID must be a number');
 				});
 		});
+		test('GET:200 expects empty array when article has no comments', () => {
+			return request(app)
+				.get('/api/articles/2/comments')
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comments.length).toBe(0);
+				});
+		});
 	});
 });
+
 describe('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {

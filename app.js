@@ -22,7 +22,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-	res.status(400).send({ msg: 'Bad request' });
+	res.status(500).send({ msg: 'Internal Server Error' });
 });
 
 module.exports = app;

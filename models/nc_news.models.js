@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const format = require('pg-format');
 
 exports.fetchTopics = () => {
 	const query = `
@@ -9,51 +10,44 @@ exports.fetchTopics = () => {
 	});
 };
 
-exports.fetchArticleById = (article_id) => {
+exports.fetchArticleById = async (article_id) => {
 	if (!Number(article_id)) {
 		return Promise.reject({
 			status: 400,
 			msg: 'Article ID must be a number',
 		});
 	}
+	await checkExists('articles', 'article_id', article_id);
+
 	const query = `
 	SELECT * FROM articles
 	WHERE article_id = $1;
 	`;
+
 	return db.query(query, [article_id]).then((result) => {
-		if (result.rows.length === 0) {
-			return Promise.reject({
-				status: 404,
-				msg: 'Article ID does not exist',
-			});
-		}
 		return result.rows;
 	});
 };
 
-exports.fetchComments = (article_id) => {
+exports.fetchComments = async (article_id) => {
 	if (!Number(article_id)) {
 		return Promise.reject({
 			status: 400,
 			msg: 'Article ID must be a number',
 		});
 	}
+	await checkExists('articles', 'article_id', article_id);
+
 	const query = `
 		SELECT * FROM comments
 		WHERE article_id = $1
-		ORDER BY created_at ASC;
+		ORDER BY created_at DESC;
 	`;
+
 	return db.query(query, [article_id]).then((result) => {
-		if (result.rows.length === 0) {
-			return Promise.reject({
-				status: 404,
-				msg: 'Article ID does not exist',
-			});
-		}
 		return result.rows;
 	});
 };
-
 
 exports.fetchArticles = () => {
 	const query = `
@@ -66,4 +60,15 @@ exports.fetchArticles = () => {
 	return db.query(query).then((result) => {
 		return result.rows;
 	});
+};
+
+const checkExists = async (table, column, value) => {
+	const query = format('SELECT * FROM %I WHERE %I = $1', table, column);
+	const output = await db.query(query, [value]);
+	if (output.rows.length === 0) {
+		return Promise.reject({
+			status: 404,
+			msg: `${column} does not exist`,
+		});
+	}
 };
