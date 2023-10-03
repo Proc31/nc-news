@@ -62,11 +62,16 @@
 		"examplePost": {
 			"username": "lurker",
 			"body": "not enough cheese"
+	"PATCH /api/articles/:article_id": {
+		"description": "Patches an articles vote count",
+		"examplePost": {
+			"inc_votes": 100
 		},
 		"exampleResponse": {
 			"comment": {
 				"comment_id": 1,
 				"votes": 0,
+				"votes": 200,
 				"created_at": 1586179020000,
 				"author": "lurker",
 				"body": "not enough cheese",

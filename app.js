@@ -6,6 +6,7 @@ const {
 	getArticles,
 	getCommentsByArticleId,
 	postCommentsByArticleId,
+	patchArticleById,
 } = require('./controllers/nc_news.controllers');
 
 const app = express();
@@ -17,7 +18,11 @@ app.get('/api/articles', getArticles);
 app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 
+
 app.post('/api/articles/:article_id/comments', postCommentsByArticleId);
+
+app.patch('/api/articles/:article_id', patchArticleById);
+
 
 app.use((err, req, res, next) => {
 	if (err.status && err.msg) {
@@ -28,6 +33,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+
 	if (err.code === '23503') {
 		res.status(400).send({ msg: 'Invalid post contents' });
 	} else {
