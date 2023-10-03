@@ -56,5 +56,22 @@
 				}
 			]
 		}
+	},
+	"POST /api/articles/:article_id/comments": {
+		"description": "Posts a comment for a given article ID",
+		"examplePost": {
+			"username": "lurker",
+			"body": "not enough cheese"
+		},
+		"exampleResponse": {
+			"comment": {
+				"comment_id": 1,
+				"votes": 0,
+				"created_at": 1586179020000,
+				"author": "lurker",
+				"body": "not enough cheese",
+				"article_id": 9
+			}
+		}
 	}
 }

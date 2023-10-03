@@ -2,8 +2,9 @@ const api = require('../endpoints.json');
 const {
 	fetchTopics,
 	fetchArticleById,
-	fetchComments,
+	fetchCommentsByArticleId,
 	fetchArticles,
+	insertCommentsByArticleId,
 } = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
@@ -12,12 +13,18 @@ exports.getApi = (req, res, next) => {
 
 exports.getTopics = (req, res, next) => {
 	return fetchTopics()
-		.then((data) => {
-			res.status(200).send({ topics: data });
+		.then((response) => {
+			res.status(200).send({ topics: response });
 		})
 		.catch((err) => {
 			next(err);
 		});
+};
+
+exports.getArticles = (req, res, next) => {
+	fetchArticles().then((response) => {
+		res.status(200).send({ articles: response });
+	});
 };
 
 exports.getArticleById = (req, res, next) => {
@@ -31,18 +38,23 @@ exports.getArticleById = (req, res, next) => {
 		});
 };
 
-exports.getArticles = (req, res, next) => {
-	fetchArticles().then((data) => {
-		res.status(200).send({ articles: data });
-	});
-};
-
-
 exports.getCommentsByArticleId = (req, res, next) => {
 	const { article_id } = req.params;
-	fetchComments(article_id)
+	fetchCommentsByArticleId(article_id)
 		.then((response) => {
 			res.status(200).send({ comments: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
+};
+
+exports.postCommentsByArticleId = (req, res, next) => {
+	const { article_id } = req.params;
+	const { username, body } = req.body;
+	insertCommentsByArticleId(article_id, username, body)
+		.then((response) => {
+			res.status(201).send({ comment: response });
 		})
 		.catch((err) => {
 			next(err);
