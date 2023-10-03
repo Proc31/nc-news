@@ -5,7 +5,6 @@ const data = require('../db/data/test-data/index');
 const seed = require('../db/seeds/seed');
 const endpoints = require('../endpoints.json');
 require('jest-sorted');
-require('jest-sorted');
 
 beforeEach(() => {
 	return seed(data);
@@ -18,6 +17,22 @@ afterAll(() => {
 describe('Error handling for invalid endpoints', () => {
 	test('GET:404 invalid endpoint given', () => {
 		return request(app).get('/api/cheese').expect(404);
+	});
+});
+
+describe('GET /api', () => {
+	describe('Endpoint behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app).get('/api').expect(200);
+		});
+		test('GET:200 expects response to match endpoints file', () => {
+			return request(app)
+				.get('/api')
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.api).toEqual(endpoints);
+				});
+		});
 	});
 });
 
@@ -42,17 +57,49 @@ describe('GET /api/topics', () => {
 	});
 });
 
-describe('GET /api', () => {
+describe('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
-			return request(app).get('/api').expect(200);
+			return request(app).get('/api/articles').expect(200);
 		});
-		test('GET:200 expects response to match endpoints file', () => {
+		test('GET:200 expects array of articles with correct keys', () => {
 			return request(app)
-				.get('/api')
-				.expect(200)
+				.get('/api/articles')
 				.then(({ body }) => {
-					expect(body.api).toEqual(endpoints);
+					const articles = body.articles;
+					expect(articles).toHaveLength(5);
+					articles.forEach((article) => {
+						expect(typeof article.author).toBe('string');
+						expect(typeof article.title).toBe('string');
+						expect(typeof article.topic).toBe('string');
+						expect(typeof article.created_at).toBe('string');
+						expect(typeof article.votes).toBe('number');
+						expect(typeof article.article_img_url).toBe('string');
+						expect(typeof article.comment_count).toBe('number');
+						expect(article.body).toBeUndefined();
+					});
+				});
+		});
+		test('GET:200 expects array of articles with correct comment counts', () => {
+			return request(app)
+				.get('/api/articles')
+				.then(({ body }) => {
+					const articles = body.articles;
+					const correctArr = [2, 1, 2, 11, 2];
+					const testArr = articles.map((article) => {
+						return article.comment_count;
+					});
+					expect(testArr).toEqual(correctArr);
+				});
+		});
+		test('GET:200 expects array of articles with correct default order and sort type', () => {
+			return request(app)
+				.get('/api/articles')
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toBeSortedBy('created_at', {
+						descending: true,
+					});
 				});
 		});
 	});
@@ -181,53 +228,103 @@ describe('GET /api/articles/:article_id/comments', () => {
 	});
 });
 
-describe('GET /api/articles', () => {
-	describe('Endpoint behaviour', () => {
-		test('GET:200 expects correct status code', () => {
-			return request(app).get('/api/articles').expect(200);
-		});
-		test('GET:200 expects array of articles with correct keys', () => {
+describe('POST /api/articles/:article_id/comments', () => {
+	describe('Endpoint Behaviour', () => {
+		test('GET:201 expects correct status code', () => {
 			return request(app)
-				.get('/api/articles')
+				.post('/api/articles/1/comments')
+				.send({
+					username: 'lurker',
+					body: 'not enough cheese',
+				})
+				.expect(201);
+		});
+		test('GET:201 expects inserted comment back with correct format', () => {
+			return request(app)
+				.post('/api/articles/1/comments')
+				.send({
+					username: 'lurker',
+					body: 'not enough cheese',
+				})
 				.then(({ body }) => {
-					const articles = body.articles;
-					expect(articles).toHaveLength(5);
-					articles.forEach((article) => {
-						expect(typeof article.author).toBe('string');
-						expect(typeof article.title).toBe('string');
-						expect(typeof article.topic).toBe('string');
-						expect(typeof article.created_at).toBe('string');
-						expect(typeof article.votes).toBe('number');
-						expect(typeof article.article_img_url).toBe('string');
-						expect(typeof article.comment_count).toBe('number');
-						expect(article.body).toBeUndefined();
-					});
+					const comment = body.comment;
+					const commentFormat = {
+						article_id: expect.any(Number),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+					};
+					expect(commentFormat).toMatchObject(comment);
 				});
 		});
-		test('GET:200 expects array of articles with correct comment counts', () => {
+		test('GET:201 expects original data not to be modified by POST and that article ID is correct', () => {
+			const post = {
+				username: 'lurker',
+				body: 'not enough cheese',
+			};
 			return request(app)
-				.get('/api/articles')
+				.post('/api/articles/1/comments')
+				.send(post)
 				.then(({ body }) => {
-					const articles = body.articles;
-					const correctArr = [2, 1, 2, 11, 2];
-					const testArr = articles.map((article) => {
-						return article.comment_count;
-					});
-					expect(testArr).toEqual(correctArr);
-				});
-		});
-		test('GET:200 expects array of articles with correct default order and sort type', () => {
-			return request(app)
-				.get('/api/articles')
-				.then(({ body }) => {
-					const articles = body.articles;
-					expect(articles).toBeSortedBy('created_at', {
-						descending: true,
-					});
+					const comment = body.comment;
+					expect(comment.body).toEqual(post.body);
+					expect(comment.author).toEqual(post.username);
+					expect(comment.article_id).toBe(1);
 				});
 		});
 	});
-});
+	describe('Endpoint error handling', () => {
+		test('GET:404 expects error when ID does not exist', () => {
+			return request(app)
+				.post('/api/articles/600/comments')
+				.send({
+					username: 'lurker',
+					body: 'not enough cheese',
+				})
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id does not exist');
+				});
+		});
+		test('GET:400 expects error when ID is an invalid type', () => {
+			return request(app)
+				.post('/api/articles/cheese/comments')
+				.send({
+					username: 'lurker',
+					body: 'not enough cheese',
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('Article ID must be a number');
+				});
+		});
+		test('GET:400 expects error when username is an invalid type', () => {
+			return request(app)
+				.post('/api/articles/1/comments')
+				.send({
+					username: 5,
+					body: 'hi',
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('Invalid post contents');
+				});
+		});
+		test('GET:400 expects error when username is not recognised', () => {
+			return request(app)
+				.post('/api/articles/1/comments')
+				.send({
+					username: 'steve',
+					body: 'hi',
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('Invalid post contents');
+				});
+		});
+	});
+}); 
 
 describe('PATCH /api/articles/:article_id', () => {
 	describe('Endpoint Behaviour', () => {

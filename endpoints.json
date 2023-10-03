@@ -57,6 +57,11 @@
 			]
 		}
 	},
+	"POST /api/articles/:article_id/comments": {
+		"description": "Posts a comment for a given article ID",
+		"examplePost": {
+			"username": "lurker",
+			"body": "not enough cheese"
 	"PATCH /api/articles/:article_id": {
 		"description": "Patches an articles vote count",
 		"examplePost": {
@@ -65,6 +70,7 @@
 		"exampleResponse": {
 			"comment": {
 				"comment_id": 1,
+				"votes": 0,
 				"votes": 200,
 				"created_at": 1586179020000,
 				"author": "lurker",
