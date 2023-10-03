@@ -296,7 +296,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 				})
 				.expect(400)
 				.then(({ body }) => {
-					expect(body.msg).toBe('Article ID must be a number');
+					expect(body.msg).toBe('article_id must be a number');
 				});
 		});
 		test('GET:400 expects error when username is an invalid type', () => {

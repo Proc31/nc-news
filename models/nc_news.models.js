@@ -66,7 +66,7 @@ exports.insertCommentsByArticleId = async (article_id, username, body) => {
 	if (!Number(article_id)) {
 		return Promise.reject({
 			status: 400,
-			msg: 'Article ID must be a number',
+			msg: 'article_id must be a number',
 		});
 	}
 

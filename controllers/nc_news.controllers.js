@@ -63,7 +63,10 @@ exports.postCommentsByArticleId = (req, res, next) => {
 	insertCommentsByArticleId(article_id, username, body)
 		.then((response) => {
 			res.status(201).send({ comment: response });
-    };
+		})
+		.catch((err) => {
+			next(err);
+		});
 };
     
 exports.patchArticleById = (req, res, next) => {

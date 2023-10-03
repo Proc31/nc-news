@@ -62,6 +62,8 @@
 		"examplePost": {
 			"username": "lurker",
 			"body": "not enough cheese"
+		}
+	},
 	"PATCH /api/articles/:article_id": {
 		"description": "Patches an articles vote count",
 		"examplePost": {
