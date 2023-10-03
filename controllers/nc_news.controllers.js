@@ -60,11 +60,12 @@ exports.deleteCommentById = (req, res, next) => {
 			if (response) {
 				res.status(204).send();
 			}
-    .catch((err) => {
+		})
+		.catch((err) => {
 			next(err);
 		});
 };
-          
+
 exports.postCommentsByArticleId = (req, res, next) => {
 	const { article_id } = req.params;
 	const { username, body } = req.body;
