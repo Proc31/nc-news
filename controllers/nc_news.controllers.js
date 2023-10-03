@@ -5,6 +5,7 @@ const {
 	fetchArticleById,
 	fetchCommentsByArticleId,
 	fetchArticles,
+	removeCommentById,
 	insertCommentsByArticleId,
 	modifyArticleById,
 } = require('../models/nc_news.models');
@@ -51,6 +52,19 @@ exports.getCommentsByArticleId = (req, res, next) => {
 		});
 };
 
+
+exports.deleteCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	removeCommentById(comment_id)
+		.then((response) => {
+			if (response) {
+				res.status(204).send();
+			}
+    .catch((err) => {
+			next(err);
+		});
+};
+          
 exports.postCommentsByArticleId = (req, res, next) => {
 	const { article_id } = req.params;
 	const { username, body } = req.body;
