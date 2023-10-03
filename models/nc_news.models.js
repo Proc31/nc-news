@@ -10,11 +10,24 @@ exports.fetchTopics = () => {
 	});
 };
 
+exports.fetchArticles = () => {
+	const query = `
+	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
+	FROM articles
+	JOIN comments ON articles.article_id = comments.article_id
+	GROUP BY articles.author,title,topic,articles.created_at,articles.votes,article_img_url
+	ORDER BY created_at DESC
+	`;
+	return db.query(query).then((result) => {
+		return result.rows;
+	});
+};
+
 exports.fetchArticleById = async (article_id) => {
 	if (!Number(article_id)) {
 		return Promise.reject({
 			status: 400,
-			msg: 'Article ID must be a number',
+			msg: 'article_id must be a number',
 		});
 	}
 	await checkExists('articles', 'article_id', article_id);
@@ -29,11 +42,11 @@ exports.fetchArticleById = async (article_id) => {
 	});
 };
 
-exports.fetchComments = async (article_id) => {
+exports.fetchCommentsByArticleId = async (article_id) => {
 	if (!Number(article_id)) {
 		return Promise.reject({
 			status: 400,
-			msg: 'Article ID must be a number',
+			msg: 'article_id must be a number',
 		});
 	}
 	await checkExists('articles', 'article_id', article_id);
@@ -49,16 +62,60 @@ exports.fetchComments = async (article_id) => {
 	});
 };
 
-exports.fetchArticles = () => {
+exports.insertCommentsByArticleId = async (article_id, username, body) => {
+	if (!Number(article_id)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'article_id must be a number',
+		});
+	}
+
+	await checkExists('articles', 'article_id', article_id);
+
 	const query = `
-	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
-	FROM articles
-	JOIN comments ON articles.article_id = comments.article_id
-	GROUP BY articles.author,title,topic,articles.created_at,articles.votes,article_img_url
-	ORDER BY created_at DESC
+	INSERT INTO comments
+	(body, votes, author, article_id)
+	VALUES
+	($1, 0, $2, $3)
+	RETURNING body, votes, author, article_id, created_at
+	;`;
+
+	return db.query(query, [body, username, article_id]).then((result) => {
+		return result.rows[0];
+	});
+};
+
+exports.modifyArticleById = async (article_id, inc_votes) => {
+	if (!Number(article_id)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'article_id must be a number',
+		});
+	}
+	if (inc_votes === undefined) {
+		return Promise.reject({
+			status: 400,
+			msg: 'request must include inc_votes key',
+		});
+	}
+	if (!Number(inc_votes)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'inc_votes must be a number',
+		});
+	}
+
+	await checkExists('articles', 'article_id', article_id);
+
+	const query = `
+	UPDATE articles
+	SET votes = $1 + votes
+	WHERE article_id = $2
+	RETURNING *;
 	`;
-	return db.query(query).then((result) => {
-		return result.rows;
+
+	return db.query(query, [inc_votes, article_id]).then((result) => {
+		return result.rows[0];
 	});
 };
 
