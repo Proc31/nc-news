@@ -254,7 +254,7 @@ describe('PATCH /api/articles/:article_id', () => {
 					expect(article).toMatchObject(articleFormat);
 				});
 		});
-		test('GET:200 expects vote count to be updated', () => {
+		test('GET:200 expects vote count to be updated when negative supplied', () => {
 			return request(app)
 				.patch('/api/articles/1')
 				.send({ inc_votes: -50 })
