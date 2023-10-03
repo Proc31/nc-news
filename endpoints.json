@@ -56,5 +56,8 @@
 				}
 			]
 		}
+	},
+	"DELETE /api/comments/:comment_id": {
+		"description": "Delete a commend from the database using the comment_id"
 	}
 }
