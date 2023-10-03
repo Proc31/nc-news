@@ -40,12 +40,6 @@ exports.getArticleById = (req, res, next) => {
 		});
 };
 
-exports.getArticles = (req, res, next) => {
-	fetchArticles().then((data) => {
-		res.status(200).send({ articles: data });
-	});
-};
-
 exports.getCommentsByArticleId = (req, res, next) => {
 	const { article_id } = req.params;
 	fetchCommentsByArticleId(article_id)
