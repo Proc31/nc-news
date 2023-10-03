@@ -1,5 +1,10 @@
 const api = require('../endpoints.json');
-const { fetchTopics, fetchArticleById } = require('../models/nc_news.models');
+const {
+	fetchTopics,
+	fetchArticleById,
+	fetchComments,
+	fetchArticles,
+} = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
 	res.status(200).send({ api });
