@@ -112,7 +112,7 @@ describe('GET /api/articles/:article_id', () => {
 				.get('/api/articles/cheese')
 				.expect(400)
 				.then(({ body }) => {
-					expect(body.msg).toBe('Article ID must be a number');
+					expect(body.msg).toBe('article_id must be a number');
 				});
 		});
 	});
@@ -167,7 +167,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 				.get('/api/articles/cheese/comments')
 				.expect(400)
 				.then(({ body }) => {
-					expect(body.msg).toBe('Article ID must be a number');
+					expect(body.msg).toBe('article_id must be a number');
 				});
 		});
 		test('GET:200 expects empty array when article has no comments', () => {
@@ -224,6 +224,81 @@ describe('GET /api/articles', () => {
 					expect(articles).toBeSortedBy('created_at', {
 						descending: true,
 					});
+				});
+		});
+	});
+});
+
+describe('PATCH /api/articles/:article_id', () => {
+	describe('Endpoint Behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: 100 })
+				.expect(200);
+		});
+		test('GET:200 expects response of updated article', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: 100 })
+				.then(({ body }) => {
+					const article = body.article;
+					const articleFormat = {
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						article_img_url: expect.any(String),
+					};
+					expect(article).toMatchObject(articleFormat);
+				});
+		});
+		test('GET:200 expects vote count to be updated', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: -50 })
+				.then(({ body }) => {
+					const article = body.article;
+					expect(article.votes).toBe(50);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('GET:404 expects error when ID does not exist', () => {
+			return request(app)
+				.patch('/api/articles/600')
+				.send({ inc_votes: 100 })
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id does not exist');
+				});
+		});
+		test('GET:400 expects error when article_id is an invalid type', () => {
+			return request(app)
+				.patch('/api/articles/cheese')
+				.send({ inc_votes: 100 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id must be a number');
+				});
+		});
+		test('GET:400 expects error when inc_votes is an invalid type', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: 'cheese' })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('inc_votes must be a number');
+				});
+		});
+		test('GET:400 expects error when ID not a valid type', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ increaseMyVotes: 100 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('request must include inc_votes key');
 				});
 		});
 	});
