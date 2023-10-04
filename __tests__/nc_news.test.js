@@ -95,7 +95,7 @@ describe('GET /api/users', () => {
 	});
 });
 
-describe.only('GET /api/articles', () => {
+describe('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
 			return request(app).get('/api/articles').expect(200);
