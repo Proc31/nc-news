@@ -54,12 +54,15 @@ exports.fetchArticleById = async (article_id) => {
 	await checkExists('articles', 'article_id', article_id);
 
 	const query = `
-	SELECT * FROM articles
-	WHERE article_id = $1;
+	SELECT articles.author,title,articles.article_id,articles.body,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS comment_count
+	FROM articles
+	JOIN comments ON comments.article_id = articles.article_id
+	WHERE articles.article_id = $1
+	GROUP BY articles.author,title,articles.article_id,articles.body,topic,articles.created_at,articles.votes,article_img_url
 	`;
 
 	return db.query(query, [article_id]).then((result) => {
-		return result.rows;
+		return result.rows[0];
 	});
 };
 
