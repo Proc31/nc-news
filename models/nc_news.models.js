@@ -10,10 +10,19 @@ exports.fetchTopics = () => {
 	});
 };
 
+exports.fetchUsers = () => {
+	const query = `
+	SELECT * FROM users;`;
+	return db.query(query).then((result) => {
+		return result.rows;
+	});
+};
+
 exports.fetchArticles = async (topic) => {
 	const queryValues = [];
 
 	let query = `
+
 	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
 	FROM articles
 	JOIN comments ON articles.article_id = comments.article_id
