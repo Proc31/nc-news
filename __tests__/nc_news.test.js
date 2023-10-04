@@ -57,7 +57,7 @@ describe('GET /api/topics', () => {
 	});
 });
 
-describe('GET /api/articles', () => {
+describe.only('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
 			return request(app).get('/api/articles').expect(200);
@@ -68,15 +68,21 @@ describe('GET /api/articles', () => {
 				.then(({ body }) => {
 					const articles = body.articles;
 					expect(articles).toHaveLength(5);
+					const articleFormat = {
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						article_img_url: expect.any(String),
+					};
+
+					articleFormat.comment_count = expect.any(Number);
+					delete articleFormat.body;
+
 					articles.forEach((article) => {
-						expect(typeof article.author).toBe('string');
-						expect(typeof article.title).toBe('string');
-						expect(typeof article.topic).toBe('string');
-						expect(typeof article.created_at).toBe('string');
-						expect(typeof article.votes).toBe('number');
-						expect(typeof article.article_img_url).toBe('string');
-						expect(typeof article.comment_count).toBe('number');
-						expect(article.body).toBeUndefined();
+						expect(article).toMatchObject(articleFormat);
 					});
 				});
 		});
@@ -102,7 +108,18 @@ describe('GET /api/articles', () => {
 					});
 				});
 		});
+		test('GET:200 expects array of articles to only contain matching topics ', () => {
+			return request(app)
+				.get('/api/articles?topic=cats')
+				.then(({ body }) => {
+					const articles = body.articles;
+					articles.forEach((article) => {
+						expect(article.topic).toBe('cats');
+					});
+				});
+		});
 	});
+	describe('Endpoint error handling', () => {});
 });
 
 describe('GET /api/articles/:article_id', () => {
