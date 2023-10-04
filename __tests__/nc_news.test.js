@@ -108,7 +108,7 @@ describe('GET /api/articles', () => {
 					});
 				});
 		});
-		test('GET:200 expects array of articles to only contain matching topics ', () => {
+		test('GET:200 expects array of articles to only contain matching topics', () => {
 			return request(app)
 				.get('/api/articles?topic=cats')
 				.then(({ body }) => {
@@ -119,6 +119,15 @@ describe('GET /api/articles', () => {
 					});
 				});
 		});
+		test('GET:200 expects empty array when topic without articles is requested', () => {
+			return request(app)
+				.get('/api/articles?topic=paper')
+				.expect(200)
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toHaveLength(0);
+				});
+		});
 	});
 	describe('Endpoint error handling', () => {
 		test('GET:404 expects error when topic does not exist ', () => {
@@ -126,7 +135,7 @@ describe('GET /api/articles', () => {
 				.get('/api/articles?topic=dogs')
 				.expect(404)
 				.then(({ body }) => {
-					expect(body.msg).toBe('topic does not exist');
+					expect(body.msg).toBe('slug does not exist');
 				});
 		});
 	});

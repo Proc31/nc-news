@@ -20,7 +20,7 @@ exports.fetchArticles = async (topic) => {
 	`;
 
 	if (topic) {
-		await checkExists('articles', 'topic', topic);
+		await checkExists('topics', 'slug', topic);
 		queryValues.push(topic);
 		query += `WHERE topic = $1`;
 	}
