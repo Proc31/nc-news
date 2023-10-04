@@ -32,8 +32,8 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-	const { topic } = req.query;
-	fetchArticles(topic)
+	const { topic, sort_by, order } = req.query;
+	fetchArticles(topic, sort_by, order)
 		.then((response) => {
 			res.status(200).send({ articles: response });
 		})
@@ -63,7 +63,6 @@ exports.getCommentsByArticleId = (req, res, next) => {
 			next(err);
 		});
 };
-
 
 exports.deleteCommentById = (req, res, next) => {
 	const { comment_id } = req.params;

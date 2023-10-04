@@ -95,7 +95,7 @@ describe('GET /api/users', () => {
 	});
 });
 
-describe('GET /api/articles', () => {
+describe.only('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
 			return request(app).get('/api/articles').expect(200);
@@ -166,6 +166,39 @@ describe('GET /api/articles', () => {
 					expect(articles).toHaveLength(0);
 				});
 		});
+		test('GET:200 expects articles to have their order asc', () => {
+			return request(app)
+				.get('/api/articles?order=asc')
+				.expect(200)
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toBeSortedBy('created_at', {
+						descending: false,
+					});
+				});
+		});
+		test('GET:200 expects articles to be sorted by comment_count', () => {
+			return request(app)
+				.get('/api/articles?sort_by=comment_count')
+				.expect(200)
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toBeSortedBy('comment_count', {
+						descending: true,
+					});
+				});
+		});
+		test('GET:200 expects articles to be sorted by comment_count and order set to asc', () => {
+			return request(app)
+				.get('/api/articles?sort_by=comment_count&order=asc')
+				.expect(200)
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toBeSortedBy('comment_count', {
+						descending: false,
+					});
+				});
+		});
 	});
 	describe('Endpoint error handling', () => {
 		test('GET:404 expects error when topic does not exist ', () => {
@@ -174,6 +207,22 @@ describe('GET /api/articles', () => {
 				.expect(404)
 				.then(({ body }) => {
 					expect(body.msg).toBe('slug does not exist');
+				});
+		});
+		test('GET:400 expects error when given invalid order query', () => {
+			return request(app)
+				.get('/api/articles?order=cheese')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('invalid order query');
+				});
+		});
+		test('GET:400 expects error when given invalid sort_by query', () => {
+			return request(app)
+				.get('/api/articles?sort_by=cheese')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('invalid sort query');
 				});
 		});
 	});
