@@ -68,7 +68,7 @@
 	},
 	"DELETE /api/comments/:comment_id": {
 		"description": "Delete a commend from the database using the comment_id"
-  },
+	},
 	"POST /api/articles/:article_id/comments": {
 		"description": "Posts a comment for a given article ID",
 		"examplePost": {
@@ -84,7 +84,22 @@
 		"exampleResponse": {
 			"comment": {
 				"comment_id": 1,
-				"votes": 0,
+				"votes": 200,
+				"created_at": 1586179020000,
+				"author": "lurker",
+				"body": "not enough cheese",
+				"article_id": 9
+			}
+		}
+	},
+	"PATCH /api/comment/:comment_id": {
+		"description": "Patches a comments vote count",
+		"examplePost": {
+			"inc_votes": 100
+		},
+		"exampleResponse": {
+			"comment": {
+				"comment_id": 1,
 				"votes": 200,
 				"created_at": 1586179020000,
 				"author": "lurker",
