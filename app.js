@@ -1,34 +1,20 @@
 const express = require('express');
-const {
-	getApi,
-	getTopics,
-	getArticleById,
-	getArticles,
-	getCommentsByArticleId,
-	deleteCommentById,
-	postCommentsByArticleId,
-	patchArticleById,
-	getUsers,
-} = require('./controllers/nc_news.controllers');
+const { getApi } = require('./controllers/nc_news.controllers');
+
+const articlesRouter = require('./routers/articles-router');
+const commentsRouter = require('./routers/comments-router');
+const topicsRouter = require('./routers/topics-router');
+const usersRouter = require('./routers/users-router');
 
 const app = express();
 app.use(express.json());
 
 app.get('/api', getApi);
-app.get('/api/topics', getTopics);
-app.get('/api/users', getUsers);
-app.get('/api/articles', getArticles);
-app.get('/api/articles/:article_id', getArticleById);
-app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 
-
-app.delete('/api/comments/:comment_id', deleteCommentById);
-
-app.post('/api/articles/:article_id/comments', postCommentsByArticleId);
-
-app.patch('/api/articles/:article_id', patchArticleById);
-
-
+app.use('/api/topics', topicsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/articles', articlesRouter);
+app.use('/api/comments', commentsRouter);
 
 app.use((err, req, res, next) => {
 	if (err.status && err.msg) {
