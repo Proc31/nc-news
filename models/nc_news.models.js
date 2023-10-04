@@ -1,5 +1,6 @@
 const db = require('../db/connection');
 const format = require('pg-format');
+const comments = require('../db/data/test-data/comments');
 
 exports.fetchTopics = () => {
 	const query = `
@@ -72,6 +73,52 @@ exports.fetchArticles = async (topic, sort_by, order) => {
 	return db.query(query, queryValues).then((result) => {
 		return result.rows;
 	});
+};
+
+exports.insertArticle = async (articleInput) => {
+	const requiredProperties = ['author', 'title', 'body', 'topic'];
+	for (const prop of requiredProperties) {
+		if (!articleInput.hasOwnProperty(prop)) {
+			return Promise.reject({
+				status: 400,
+				msg: 'article format not valid',
+			});
+		}
+	}
+	if (!articleInput.hasOwnProperty('article_img_url')) {
+		articleInput.article_img_url = 'https://i.imgur.com/QzScpiy.png';
+	}
+
+	const { author, title, body, topic, article_img_url } = articleInput;
+
+	await checkExists('users', 'username', author);
+	await checkExists('topics', 'slug', topic);
+
+	const insertQuery = `
+	INSERT INTO articles
+	(author,title,body,topic,article_img_url)
+	VALUES
+	($1,$2,$3,$4,$5)
+	RETURNING *
+	`;
+
+	const selectQuery = `
+	SELECT articles.article_id,articles.author,articles.title,articles.topic,articles.body,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
+	FROM articles
+	FULL OUTER JOIN comments ON articles.article_id = comments.article_id
+	WHERE articles.article_id = $1
+	GROUP BY articles.article_id,articles.author,articles.title,articles.topic,articles.body,articles.created_at,articles.votes,article_img_url
+	`;
+
+	return db
+		.query(insertQuery, [author, title, body, topic, article_img_url])
+		.then((response) => {
+			const insertedId = response.rows[0].article_id;
+			return db.query(selectQuery, [insertedId]);
+		})
+		.then((result) => {
+			return result.rows[0];
+		});
 };
 
 exports.fetchArticleById = async (article_id) => {

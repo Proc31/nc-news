@@ -269,6 +269,130 @@ describe('GET /api/articles', () => {
 	});
 });
 
+describe('POST /api/articles', () => {
+	describe('Endpoint behaviour', () => {
+		const inputArticle = {
+			author: 'lurker',
+			title: 'I like cats',
+			body: 'They are cute',
+			topic: 'cats',
+			article_img_url: 'google.com',
+		};
+		test('POST:200 expects correct status code', () => {
+			return request(app)
+				.post('/api/articles')
+				.send(inputArticle)
+				.expect(200);
+		});
+		test('POST:200 expects correct article format', () => {
+			return request(app)
+				.post('/api/articles')
+				.send(inputArticle)
+				.expect(200)
+				.then(({ body }) => {
+					const article = body.article;
+					console.log(article);
+					const articleFormat = {
+						article_id: expect.any(Number),
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						article_img_url: expect.any(String),
+						comment_count: expect.any(Number),
+					};
+					expect(article).toMatchObject(articleFormat);
+				});
+		});
+		test('POST:200 expects input not to be mutated', () => {
+			return request(app)
+				.post('/api/articles')
+				.send(inputArticle)
+				.expect(200)
+				.then(({ body }) => {
+					const article = body.article;
+					for (const key in inputArticle) {
+						expect(article[key]).toBe(inputArticle[key]);
+					}
+				});
+		});
+		test('POST:200 expects article_img_url to go to default value if not given', () => {
+			const modArticle = { ...inputArticle };
+			delete modArticle.article_img_url;
+			return request(app)
+				.post('/api/articles')
+				.send(modArticle)
+				.expect(200)
+				.then(({ body }) => {
+					const article = body.article;
+					expect(article.article_img_url).toBe(
+						'https://i.imgur.com/QzScpiy.png'
+					);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('POST:400 expect error when input missing data', () => {
+			return request(app)
+				.post('/api/articles')
+				.send({
+					author: 'lurker',
+					title: 'I like cats',
+					body: 'They are cute',
+					cheese: 'cats',
+					article_img_url: 'google.com',
+				})
+				.then(({ body }) => {
+					expect(body.msg).toBe('article format not valid');
+				});
+		});
+		test('POST:400 expect error when data not valid type', () => {
+			return request(app)
+				.post('/api/articles')
+				.send({
+					author: 5,
+					title: 'I like cats',
+					body: 'They are cute',
+					topic: 'cats',
+					article_img_url: 'google.com',
+				})
+				.then(({ body }) => {
+					expect(body.msg).toBe('username does not exist');
+				});
+		});
+		test('POST:400 expect error when author does not exist', () => {
+			return request(app)
+				.post('/api/articles')
+				.send({
+					author: 'Dave',
+					title: 'I like cats',
+					body: 'They are cute',
+					topic: 'cats',
+					article_img_url: 'google.com',
+				})
+				.then(({ body }) => {
+					expect(body.msg).toBe('username does not exist');
+				});
+		});
+		test('POST:400 expect error when topic does not exist', () => {
+			return request(app)
+				.post('/api/articles')
+				.send({
+					author: 'lurker',
+					title: 'I like cats',
+					body: 'They are cute',
+					topic: 'cheese',
+					article_img_url: 'google.com',
+				})
+				.then(({ body }) => {
+					expect(body.msg).toBe('slug does not exist');
+				});
+		});
+	});
+});
+
 describe('GET /api/articles/:article_id', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
