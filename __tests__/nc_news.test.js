@@ -106,15 +106,21 @@ describe('GET /api/articles', () => {
 				.then(({ body }) => {
 					const articles = body.articles;
 					expect(articles).toHaveLength(5);
+					const articleFormat = {
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						article_img_url: expect.any(String),
+					};
+
+					articleFormat.comment_count = expect.any(Number);
+					delete articleFormat.body;
+
 					articles.forEach((article) => {
-						expect(typeof article.author).toBe('string');
-						expect(typeof article.title).toBe('string');
-						expect(typeof article.topic).toBe('string');
-						expect(typeof article.created_at).toBe('string');
-						expect(typeof article.votes).toBe('number');
-						expect(typeof article.article_img_url).toBe('string');
-						expect(typeof article.comment_count).toBe('number');
-						expect(article.body).toBeUndefined();
+						expect(article).toMatchObject(articleFormat);
 					});
 				});
 		});
@@ -138,6 +144,36 @@ describe('GET /api/articles', () => {
 					expect(articles).toBeSortedBy('created_at', {
 						descending: true,
 					});
+				});
+		});
+		test('GET:200 expects array of articles to only contain matching topics', () => {
+			return request(app)
+				.get('/api/articles?topic=cats')
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toHaveLength(1);
+					articles.forEach((article) => {
+						expect(article.topic).toBe('cats');
+					});
+				});
+		});
+		test('GET:200 expects empty array when topic without articles is requested', () => {
+			return request(app)
+				.get('/api/articles?topic=paper')
+				.expect(200)
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toHaveLength(0);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('GET:404 expects error when topic does not exist ', () => {
+			return request(app)
+				.get('/api/articles?topic=dogs')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('slug does not exist');
 				});
 		});
 	});
