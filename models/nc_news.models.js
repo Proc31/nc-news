@@ -10,21 +10,26 @@ exports.fetchTopics = () => {
 	});
 };
 
-exports.fetchArticles = (topic) => {
+exports.fetchArticles = async (topic) => {
 	const queryValues = [];
+
 	let query = `
 	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
 	FROM articles
 	JOIN comments ON articles.article_id = comments.article_id
 	`;
+
 	if (topic) {
+		await checkExists('articles', 'topic', topic);
 		queryValues.push(topic);
 		query += `WHERE topic = $1`;
 	}
+
 	query += `
 	GROUP BY articles.author,title,topic,articles.created_at,articles.votes,article_img_url
 	ORDER BY created_at DESC
 	`;
+
 	return db.query(query, queryValues).then((result) => {
 		return result.rows;
 	});

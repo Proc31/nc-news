@@ -26,9 +26,13 @@ exports.getTopics = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
 	const { topic } = req.query;
-	fetchArticles(topic).then((response) => {
-		res.status(200).send({ articles: response });
-	});
+	fetchArticles(topic)
+		.then((response) => {
+			res.status(200).send({ articles: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
 };
 
 exports.getArticleById = (req, res, next) => {

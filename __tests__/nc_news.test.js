@@ -57,7 +57,7 @@ describe('GET /api/topics', () => {
 	});
 });
 
-describe.only('GET /api/articles', () => {
+describe('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
 			return request(app).get('/api/articles').expect(200);
@@ -113,13 +113,23 @@ describe.only('GET /api/articles', () => {
 				.get('/api/articles?topic=cats')
 				.then(({ body }) => {
 					const articles = body.articles;
+					expect(articles).toHaveLength(1);
 					articles.forEach((article) => {
 						expect(article.topic).toBe('cats');
 					});
 				});
 		});
 	});
-	describe('Endpoint error handling', () => {});
+	describe('Endpoint error handling', () => {
+		test('GET:404 expects error when topic does not exist ', () => {
+			return request(app)
+				.get('/api/articles?topic=dogs')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('topic does not exist');
+				});
+		});
+	});
 });
 
 describe('GET /api/articles/:article_id', () => {
