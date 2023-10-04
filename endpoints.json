@@ -35,6 +35,27 @@
 			]
 		}
 	},
+	"POST /api/articles": {
+		"description": "Posts an article",
+		"examplePost": {
+			"author": "lurker",
+			"title": "I like cats",
+			"body": "They are cute",
+			"topic": "cats",
+			"article_img_url": "google.com"
+		},
+		"exampleResponse": {
+			"article_id": 14,
+			"author": "lurker",
+			"title": "I like cats",
+			"topic": "cats",
+			"body": "They are cute",
+			"created_at": "2023-10-04T15:59:19.175Z",
+			"votes": 0,
+			"article_img_url": "google.com",
+			"comment_count": 0
+		}
+	},
 	"GET /api/articles/:article_id": {
 		"description": "serves an a specifc article object based on requested ID",
 		"exampleResponse": {

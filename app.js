@@ -24,8 +24,9 @@ app.use((err, req, res, next) => {
 	}
 });
 
-app.use((err, req, res, next) => {
 
+app.use((err, req, res, next) => {
+	// Error code for when SQL detects invalid type
 	if (err.code === '23503') {
 		res.status(400).send({ msg: 'Invalid post contents' });
 	} else {
@@ -34,6 +35,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+	console.log(err);
 	res.status(500).send({ msg: 'Internal Server Error' });
 });
 

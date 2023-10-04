@@ -11,6 +11,7 @@ const {
 	fetchUsers,
 	fetchUserById,
 	modifyCommentById,
+	insertArticle,
 } = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
@@ -49,6 +50,16 @@ exports.getArticles = (req, res, next) => {
 	fetchArticles(topic, sort_by, order)
 		.then((response) => {
 			res.status(200).send({ articles: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
+};
+
+exports.postArticle = (req, res, next) => {
+	insertArticle(req.body)
+		.then((response) => {
+			res.status(200).send({ article: response });
 		})
 		.catch((err) => {
 			next(err);
