@@ -603,7 +603,7 @@ describe('DELETE /api/comments/:comment_id', () => {
 	});
 });
 
-describe.only('PATCH /api/comments/:comment_id', () => {
+describe('PATCH /api/comments/:comment_id', () => {
 	describe('Endpoint behaviour', () => {
 		test('PATCH:200 expects correct status code', () => {
 			return request(app)
