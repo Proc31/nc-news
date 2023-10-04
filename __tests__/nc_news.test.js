@@ -95,6 +95,47 @@ describe('GET /api/users', () => {
 	});
 });
 
+describe('GET /api/users/:username', () => {
+	describe('Endpoint Behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app).get('/api/users/rogersop').expect(200);
+		});
+		test('GET:200 expects a user object of correct format', () => {
+			return request(app)
+				.get('/api/users/rogersop')
+				.expect(200)
+				.then(({ body }) => {
+					const user = body.user;
+					const userFormat = {
+						username: expect.any(String),
+						name: expect.any(String),
+						avatar_url: expect.any(String),
+					};
+					expect(user).toMatchObject(userFormat);
+				});
+		});
+		test('GET:200 expects a user object to have correct data', () => {
+			return request(app)
+				.get('/api/users/rogersop')
+				.expect(200)
+				.then(({ body }) => {
+					const user = body.user;
+					expect(user.username).toBe('rogersop');
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('GET:400 expects error when user does not exist', () => {
+			return request(app)
+				.get('/api/users/cheese')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('username does not exist');
+				});
+		});
+	});
+});
+
 describe('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
