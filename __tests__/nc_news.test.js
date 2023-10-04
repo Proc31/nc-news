@@ -62,11 +62,12 @@ describe('GET /api/users', () => {
 		test('GET:200 expects correct status code', () => {
 			return request(app).get('/api/users').expect(200);
 		});
-		test('GET:200 expects a copy of the user object', () => {
+		test.only('GET:200 expects a copy of the user object', () => {
 			return request(app)
 				.get('/api/users')
 				.then(({ body }) => {
 					const users = body.users;
+					expect(users).toHaveLength(4);
 					const userFormat = {
 						username: expect.any(String),
 						name: expect.any(String),
