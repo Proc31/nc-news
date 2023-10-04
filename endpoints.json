@@ -66,6 +66,9 @@
 			]
 		}
 	},
+	"DELETE /api/comments/:comment_id": {
+		"description": "Delete a commend from the database using the comment_id"
+  },
 	"POST /api/articles/:article_id/comments": {
 		"description": "Posts a comment for a given article ID",
 		"examplePost": {

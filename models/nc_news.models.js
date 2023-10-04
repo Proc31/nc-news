@@ -127,6 +127,27 @@ exports.modifyArticleById = async (article_id, inc_votes) => {
 	});
 };
 
+exports.removeCommentById = async (comment_id) => {
+	if (!Number(comment_id)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'comment_id must be a number',
+		});
+	}
+
+	await checkExists('comments', 'comment_id', comment_id);
+
+	const query = `
+	DELETE FROM comments
+	WHERE comment_id = $1
+	`;
+	return db.query(query, [comment_id]).then((result) => {
+		if (result.rowCount !== 0) {
+			return true;
+		}
+	});
+};
+
 const checkExists = async (table, column, value) => {
 	const query = format('SELECT * FROM %I WHERE %I = $1', table, column);
 	const output = await db.query(query, [value]);

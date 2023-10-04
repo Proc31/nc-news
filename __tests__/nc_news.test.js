@@ -439,3 +439,35 @@ describe('PATCH /api/articles/:article_id', () => {
 	});
 });
 
+describe('DELETE /api/comments/:comment_id', () => {
+	describe('Endpoint behaviour', () => {
+		test('DELETE:204 expects correct status code', () => {
+			return request(app).delete('/api/comments/1').expect(204);
+		});
+		test('DELETE:204 expects data to be deleted', () => {
+			return request(app)
+				.delete('/api/comments/1')
+				.then(() => {
+					return request(app).delete('/api/comments/1').expect(404);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('DELETE:400 expects error when comment_id is an invalid type', () => {
+			return request(app)
+				.delete('/api/comments/cheese')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('comment_id must be a number');
+				});
+		});
+		test('DELETE:404 expects error when comment_id does not exist', () => {
+			return request(app)
+				.delete('/api/comments/999')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('comment_id does not exist');
+				});
+		});
+	});
+});

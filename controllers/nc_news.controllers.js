@@ -5,6 +5,7 @@ const {
 	fetchArticleById,
 	fetchCommentsByArticleId,
 	fetchArticles,
+	removeCommentById,
 	insertCommentsByArticleId,
 	modifyArticleById,
 	fetchUsers,
@@ -52,6 +53,20 @@ exports.getCommentsByArticleId = (req, res, next) => {
 	fetchCommentsByArticleId(article_id)
 		.then((response) => {
 			res.status(200).send({ comments: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
+};
+
+
+exports.deleteCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	removeCommentById(comment_id)
+		.then((response) => {
+			if (response) {
+				res.status(204).send();
+			}
 		})
 		.catch((err) => {
 			next(err);

@@ -5,6 +5,7 @@ const {
 	getArticleById,
 	getArticles,
 	getCommentsByArticleId,
+	deleteCommentById,
 	postCommentsByArticleId,
 	patchArticleById,
 	getUsers,
@@ -20,9 +21,13 @@ app.get('/api/articles', getArticles);
 app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 
+
+app.delete('/api/comments/:comment_id', deleteCommentById);
+
 app.post('/api/articles/:article_id/comments', postCommentsByArticleId);
 
 app.patch('/api/articles/:article_id', patchArticleById);
+
 
 
 app.use((err, req, res, next) => {
