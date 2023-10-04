@@ -57,6 +57,44 @@ describe('GET /api/topics', () => {
 	});
 });
 
+describe('GET /api/users', () => {
+	describe('Endpoint Behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app).get('/api/users').expect(200);
+		});
+		test('GET:200 expects a copy of the user object', () => {
+			return request(app)
+				.get('/api/users')
+				.then(({ body }) => {
+					const users = body.users;
+					expect(users).toHaveLength(4);
+					const userFormat = {
+						username: expect.any(String),
+						name: expect.any(String),
+						avatar_url: expect.any(String),
+					};
+					users.forEach((user) => {
+						expect(user).toMatchObject(userFormat);
+					});
+				});
+		});
+		test('GET:200 expects user content to be correct', () => {
+			return request(app)
+				.get('/api/users')
+				.then(({ body }) => {
+					const expectedUser = {
+						username: 'butter_bridge',
+						name: 'jonny',
+						avatar_url:
+							'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg',
+					};
+					const users = body.users;
+					expect(users[0]).toEqual(expectedUser);
+				});
+		});
+	});
+});
+
 describe('GET /api/articles', () => {
 	describe('Endpoint behaviour', () => {
 		test('GET:200 expects correct status code', () => {
@@ -324,7 +362,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 				});
 		});
 	});
-}); 
+});
 
 describe('PATCH /api/articles/:article_id', () => {
 	describe('Endpoint Behaviour', () => {

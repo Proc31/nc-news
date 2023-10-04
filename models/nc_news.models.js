@@ -10,6 +10,14 @@ exports.fetchTopics = () => {
 	});
 };
 
+exports.fetchUsers = () => {
+	const query = `
+	SELECT * FROM users;`;
+	return db.query(query).then((result) => {
+		return result.rows;
+	});
+};
+
 exports.fetchArticles = () => {
 	const query = `
 	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
