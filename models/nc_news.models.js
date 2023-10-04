@@ -194,6 +194,37 @@ exports.removeCommentById = async (comment_id) => {
 	});
 };
 
+exports.modifyCommentById = async (comment_id, inc_votes) => {
+	if (!Number(comment_id)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'comment_id must be a number',
+		});
+	}
+	if (inc_votes === undefined) {
+		return Promise.reject({
+			status: 400,
+			msg: 'request must include inc_votes key',
+		});
+	}
+	if (!Number(inc_votes)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'inc_votes must be a number',
+		});
+	}
+	await checkExists('comments', 'comment_id', comment_id);
+	const query = `
+	UPDATE comments
+	SET votes = $1 + votes
+	WHERE comment_id = $2
+	RETURNING *;
+	`;
+	return db.query(query, [inc_votes, comment_id]).then((result) => {
+		return result.rows[0];
+	});
+};
+
 const checkExists = async (table, column, value) => {
 	const query = format('SELECT * FROM %I WHERE %I = $1', table, column);
 	const output = await db.query(query, [value]);

@@ -10,6 +10,7 @@ const {
 	modifyArticleById,
 	fetchUsers,
 	fetchUserById,
+	modifyCommentById,
 } = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
@@ -83,6 +84,18 @@ exports.deleteCommentById = (req, res, next) => {
 			if (response) {
 				res.status(204).send();
 			}
+		})
+		.catch((err) => {
+			next(err);
+		});
+};
+
+exports.patchCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	const { inc_votes } = req.body;
+	modifyCommentById(comment_id, inc_votes)
+		.then((response) => {
+			res.status(200).send({ comment: response });
 		})
 		.catch((err) => {
 			next(err);

@@ -602,3 +602,89 @@ describe('DELETE /api/comments/:comment_id', () => {
 		});
 	});
 });
+
+describe.only('PATCH /api/comments/:comment_id', () => {
+	describe('Endpoint behaviour', () => {
+		test('PATCH:200 expects correct status code', () => {
+			return request(app)
+				.patch('/api/comments/1')
+				.send({ inc_votes: 1 })
+				.expect(200);
+		});
+		test('PATCH:200 expects correct response format', () => {
+			return request(app)
+				.patch('/api/comments/1')
+				.send({ inc_votes: 1 })
+				.expect(200)
+				.then(({ body }) => {
+					const comment = body.comment;
+					const commentFormat = {
+						article_id: expect.any(Number),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+					};
+					expect(comment).toMatchObject(commentFormat);
+				});
+		});
+		test('PATCH:200 expects comment vote property to be updated for pos number', () => {
+			return request(app)
+				.patch('/api/comments/1')
+				.send({ inc_votes: 5 })
+				.expect(200)
+				.then(({ body }) => {
+					const comment = body.comment;
+					expect(comment.votes).toBe(21);
+				});
+		});
+		test('PATCH:200 expects comment vote property to be updated for neg number', () => {
+			return request(app)
+				.patch('/api/comments/1')
+				.send({ inc_votes: -5 })
+				.expect(200)
+				.then(({ body }) => {
+					const comment = body.comment;
+					expect(comment.votes).toBe(11);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('PATCH:404 expects error when comment_id does not exist', () => {
+			return request(app)
+				.patch('/api/comments/600')
+				.send({ inc_votes: 100 })
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('comment_id does not exist');
+				});
+		});
+		test('PATCH:400 expects error when comment_id is an invalid type', () => {
+			return request(app)
+				.patch('/api/comments/cheese')
+				.send({ inc_votes: 100 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('comment_id must be a number');
+				});
+		});
+		test('PATCH:400 expects error when inc_votes is an invalid type', () => {
+			return request(app)
+				.patch('/api/comments/1')
+				.send({ inc_votes: 'cheese' })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('inc_votes must be a number');
+				});
+		});
+		test('PATCH:400 expects error when inc_votes key does not exist', () => {
+			return request(app)
+				.patch('/api/comments/1')
+				.send({ increaseMyVotes: 100 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('request must include inc_votes key');
+				});
+		});
+	});
+});
