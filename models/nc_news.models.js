@@ -18,6 +18,17 @@ exports.fetchUsers = () => {
 	});
 };
 
+exports.fetchUserById = async (username) => {
+	await checkExists('users', 'username', username);
+	const query = `
+	SELECT username,name,avatar_url FROM users
+	WHERE username = $1
+	`;
+	return db.query(query, [username]).then((result) => {
+		return result.rows[0];
+	});
+};
+
 exports.fetchArticles = async (topic, sort_by, order) => {
 	const queryValues = [];
 	sort_by = sort_by || 'created_at';

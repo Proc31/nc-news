@@ -9,6 +9,7 @@ const {
 	insertCommentsByArticleId,
 	modifyArticleById,
 	fetchUsers,
+	fetchUserById,
 } = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
@@ -29,6 +30,17 @@ exports.getUsers = (req, res, next) => {
 	return fetchUsers().then((response) => {
 		res.status(200).send({ users: response });
 	});
+};
+
+exports.getUserById = (req, res, next) => {
+	const { username } = req.params;
+	fetchUserById(username)
+		.then((response) => {
+			res.status(200).send({ user: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
 };
 
 exports.getArticles = (req, res, next) => {
