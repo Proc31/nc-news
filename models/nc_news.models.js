@@ -18,11 +18,30 @@ exports.fetchUsers = () => {
 	});
 };
 
-exports.fetchArticles = async (topic) => {
+exports.fetchArticles = async (topic, sort_by, order) => {
 	const queryValues = [];
+	sort_by = sort_by || 'created_at';
+	order = order || 'desc';
+
+	if (
+		![
+			'title',
+			'topic',
+			'author',
+			'body',
+			'created_at',
+			'votes',
+			'article_img_url',
+			'comment_count',
+		].includes(sort_by)
+	) {
+		return Promise.reject({ status: 400, msg: 'invalid sort query' });
+	}
+	if (!['asc', 'desc'].includes(order)) {
+		return Promise.reject({ status: 400, msg: 'invalid order query' });
+	}
 
 	let query = `
-
 	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
 	FROM articles
 	JOIN comments ON articles.article_id = comments.article_id
@@ -31,12 +50,12 @@ exports.fetchArticles = async (topic) => {
 	if (topic) {
 		await checkExists('topics', 'slug', topic);
 		queryValues.push(topic);
-		query += `WHERE topic = $1`;
+		query += `WHERE topic = $${queryValues.length}`;
 	}
 
 	query += `
 	GROUP BY articles.author,title,topic,articles.created_at,articles.votes,article_img_url
-	ORDER BY created_at DESC
+	ORDER BY ${sort_by} ${order}
 	`;
 
 	return db.query(query, queryValues).then((result) => {
