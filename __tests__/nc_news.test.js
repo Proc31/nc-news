@@ -62,7 +62,7 @@ describe('GET /api/users', () => {
 		test('GET:200 expects correct status code', () => {
 			return request(app).get('/api/users').expect(200);
 		});
-		test.only('GET:200 expects a copy of the user object', () => {
+		test('GET:200 expects a copy of the user object', () => {
 			return request(app)
 				.get('/api/users')
 				.then(({ body }) => {
