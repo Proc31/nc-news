@@ -291,7 +291,6 @@ describe('POST /api/articles', () => {
 				.expect(200)
 				.then(({ body }) => {
 					const article = body.article;
-					console.log(article);
 					const articleFormat = {
 						article_id: expect.any(Number),
 						title: expect.any(String),
