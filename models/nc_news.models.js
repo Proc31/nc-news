@@ -64,8 +64,10 @@ exports.fetchArticles = async (topic, sort_by, order, p, limit) => {
 	await typeCheck('page', p);
 	await typeCheck('limit', limit);
 
-	if (
-		![
+	await queryCheck('order', ['asc', 'desc'], order);
+	await queryCheck(
+		'sort_by',
+		[
 			'title',
 			'topic',
 			'author',
@@ -74,13 +76,9 @@ exports.fetchArticles = async (topic, sort_by, order, p, limit) => {
 			'votes',
 			'article_img_url',
 			'comment_count',
-		].includes(sort_by)
-	) {
-		return Promise.reject({ status: 400, msg: 'invalid sort query' });
-	}
-	if (!['asc', 'desc'].includes(order)) {
-		return Promise.reject({ status: 400, msg: 'invalid order query' });
-	}
+		],
+		sort_by
+	);
 
 	let query = `
 	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
@@ -315,5 +313,11 @@ const typeCheck = async (type, input) => {
 			status: 400,
 			msg: `${type} must be a number`,
 		});
+	}
+};
+
+const queryCheck = async (type, queryArray, query) => {
+	if (!queryArray.includes(query)) {
+		return Promise.reject({ status: 400, msg: `invalid ${type} query` });
 	}
 };

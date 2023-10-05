@@ -319,7 +319,7 @@ describe('GET /api/articles', () => {
 				.get('/api/articles?sort_by=cheese')
 				.expect(400)
 				.then(({ body }) => {
-					expect(body.msg).toBe('invalid sort query');
+					expect(body.msg).toBe('invalid sort_by query');
 				});
 		});
 		test('GET:400 expects error when given invalid p query', () => {
