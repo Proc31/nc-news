@@ -554,6 +554,81 @@ describe('GET /api/articles/:article_id', () => {
 	});
 });
 
+describe('PATCH /api/articles/:article_id', () => {
+	describe('Endpoint Behaviour', () => {
+		test('GET:200 expects correct status code', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: 100 })
+				.expect(200);
+		});
+		test('GET:200 expects response of updated article', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: 100 })
+				.then(({ body }) => {
+					const article = body.article;
+					const articleFormat = {
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						article_img_url: expect.any(String),
+					};
+					expect(article).toMatchObject(articleFormat);
+				});
+		});
+		test('GET:200 expects vote count to be updated when negative supplied', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: -50 })
+				.then(({ body }) => {
+					const article = body.article;
+					expect(article.votes).toBe(50);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('GET:404 expects error when ID does not exist', () => {
+			return request(app)
+				.patch('/api/articles/600')
+				.send({ inc_votes: 100 })
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id does not exist');
+				});
+		});
+		test('GET:400 expects error when article_id is an invalid type', () => {
+			return request(app)
+				.patch('/api/articles/cheese')
+				.send({ inc_votes: 100 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id must be a number');
+				});
+		});
+		test('GET:400 expects error when inc_votes is an invalid type', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ inc_votes: 'cheese' })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('inc_votes must be a number');
+				});
+		});
+		test('GET:400 expects error when ID not a valid type', () => {
+			return request(app)
+				.patch('/api/articles/1')
+				.send({ increaseMyVotes: 100 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('request must include inc_votes key');
+				});
+		});
+	});
+});
+
 describe('DELETE /api/articles/:article_id', () => {
 	describe('Endpoint behaviour', () => {
 		test('DELETE:204 expects correct status code', () => {
@@ -755,114 +830,6 @@ describe('POST /api/articles/:article_id/comments', () => {
 	});
 });
 
-describe('PATCH /api/articles/:article_id', () => {
-	describe('Endpoint Behaviour', () => {
-		test('GET:200 expects correct status code', () => {
-			return request(app)
-				.patch('/api/articles/1')
-				.send({ inc_votes: 100 })
-				.expect(200);
-		});
-		test('GET:200 expects response of updated article', () => {
-			return request(app)
-				.patch('/api/articles/1')
-				.send({ inc_votes: 100 })
-				.then(({ body }) => {
-					const article = body.article;
-					const articleFormat = {
-						title: expect.any(String),
-						topic: expect.any(String),
-						author: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						article_img_url: expect.any(String),
-					};
-					expect(article).toMatchObject(articleFormat);
-				});
-		});
-		test('GET:200 expects vote count to be updated when negative supplied', () => {
-			return request(app)
-				.patch('/api/articles/1')
-				.send({ inc_votes: -50 })
-				.then(({ body }) => {
-					const article = body.article;
-					expect(article.votes).toBe(50);
-				});
-		});
-	});
-	describe('Endpoint error handling', () => {
-		test('GET:404 expects error when ID does not exist', () => {
-			return request(app)
-				.patch('/api/articles/600')
-				.send({ inc_votes: 100 })
-				.expect(404)
-				.then(({ body }) => {
-					expect(body.msg).toBe('article_id does not exist');
-				});
-		});
-		test('GET:400 expects error when article_id is an invalid type', () => {
-			return request(app)
-				.patch('/api/articles/cheese')
-				.send({ inc_votes: 100 })
-				.expect(400)
-				.then(({ body }) => {
-					expect(body.msg).toBe('article_id must be a number');
-				});
-		});
-		test('GET:400 expects error when inc_votes is an invalid type', () => {
-			return request(app)
-				.patch('/api/articles/1')
-				.send({ inc_votes: 'cheese' })
-				.expect(400)
-				.then(({ body }) => {
-					expect(body.msg).toBe('inc_votes must be a number');
-				});
-		});
-		test('GET:400 expects error when ID not a valid type', () => {
-			return request(app)
-				.patch('/api/articles/1')
-				.send({ increaseMyVotes: 100 })
-				.expect(400)
-				.then(({ body }) => {
-					expect(body.msg).toBe('request must include inc_votes key');
-				});
-		});
-	});
-});
-
-describe('DELETE /api/comments/:comment_id', () => {
-	describe('Endpoint behaviour', () => {
-		test('DELETE:204 expects correct status code', () => {
-			return request(app).delete('/api/comments/1').expect(204);
-		});
-		test('DELETE:204 expects data to be deleted', () => {
-			return request(app)
-				.delete('/api/comments/1')
-				.then(() => {
-					return request(app).delete('/api/comments/1').expect(404);
-				});
-		});
-	});
-	describe('Endpoint error handling', () => {
-		test('DELETE:400 expects error when comment_id is an invalid type', () => {
-			return request(app)
-				.delete('/api/comments/cheese')
-				.expect(400)
-				.then(({ body }) => {
-					expect(body.msg).toBe('comment_id must be a number');
-				});
-		});
-		test('DELETE:404 expects error when comment_id does not exist', () => {
-			return request(app)
-				.delete('/api/comments/999')
-				.expect(404)
-				.then(({ body }) => {
-					expect(body.msg).toBe('comment_id does not exist');
-				});
-		});
-	});
-});
-
 describe('PATCH /api/comments/:comment_id', () => {
 	describe('Endpoint behaviour', () => {
 		test('PATCH:200 expects correct status code', () => {
@@ -948,3 +915,37 @@ describe('PATCH /api/comments/:comment_id', () => {
 		});
 	});
 });
+
+describe('DELETE /api/comments/:comment_id', () => {
+	describe('Endpoint behaviour', () => {
+		test('DELETE:204 expects correct status code', () => {
+			return request(app).delete('/api/comments/1').expect(204);
+		});
+		test('DELETE:204 expects data to be deleted', () => {
+			return request(app)
+				.delete('/api/comments/1')
+				.then(() => {
+					return request(app).delete('/api/comments/1').expect(404);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('DELETE:400 expects error when comment_id is an invalid type', () => {
+			return request(app)
+				.delete('/api/comments/cheese')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('comment_id must be a number');
+				});
+		});
+		test('DELETE:404 expects error when comment_id does not exist', () => {
+			return request(app)
+				.delete('/api/comments/999')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('comment_id does not exist');
+				});
+		});
+	});
+});
+

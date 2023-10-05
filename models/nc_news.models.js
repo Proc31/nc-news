@@ -188,6 +188,40 @@ exports.fetchArticleById = async (article_id) => {
 	});
 };
 
+exports.modifyArticleById = async (article_id, inc_votes) => {
+	if (!Number(article_id)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'article_id must be a number',
+		});
+	}
+	if (inc_votes === undefined) {
+		return Promise.reject({
+			status: 400,
+			msg: 'request must include inc_votes key',
+		});
+	}
+	if (!Number(inc_votes)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'inc_votes must be a number',
+		});
+	}
+
+	await checkExists('articles', 'article_id', article_id);
+
+	const query = `
+	UPDATE articles
+	SET votes = $1 + votes
+	WHERE article_id = $2
+	RETURNING *;
+	`;
+
+	return db.query(query, [inc_votes, article_id]).then((result) => {
+		return result.rows[0];
+	});
+};
+
 exports.removeArticleById = async (article_id) => {
 	if (!Number(article_id)) {
 		return Promise.reject({
@@ -262,61 +296,6 @@ exports.insertCommentsByArticleId = async (article_id, username, body) => {
 	});
 };
 
-exports.modifyArticleById = async (article_id, inc_votes) => {
-	if (!Number(article_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'article_id must be a number',
-		});
-	}
-	if (inc_votes === undefined) {
-		return Promise.reject({
-			status: 400,
-			msg: 'request must include inc_votes key',
-		});
-	}
-	if (!Number(inc_votes)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'inc_votes must be a number',
-		});
-	}
-
-	await checkExists('articles', 'article_id', article_id);
-
-	const query = `
-	UPDATE articles
-	SET votes = $1 + votes
-	WHERE article_id = $2
-	RETURNING *;
-	`;
-
-	return db.query(query, [inc_votes, article_id]).then((result) => {
-		return result.rows[0];
-	});
-};
-
-exports.removeCommentById = async (comment_id) => {
-	if (!Number(comment_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'comment_id must be a number',
-		});
-	}
-
-	await checkExists('comments', 'comment_id', comment_id);
-
-	const query = `
-	DELETE FROM comments
-	WHERE comment_id = $1
-	`;
-	return db.query(query, [comment_id]).then((result) => {
-		if (result.rowCount !== 0) {
-			return true;
-		}
-	});
-};
-
 exports.modifyCommentById = async (comment_id, inc_votes) => {
 	if (!Number(comment_id)) {
 		return Promise.reject({
@@ -345,6 +324,27 @@ exports.modifyCommentById = async (comment_id, inc_votes) => {
 	`;
 	return db.query(query, [inc_votes, comment_id]).then((result) => {
 		return result.rows[0];
+	});
+};
+
+exports.removeCommentById = async (comment_id) => {
+	if (!Number(comment_id)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'comment_id must be a number',
+		});
+	}
+
+	await checkExists('comments', 'comment_id', comment_id);
+
+	const query = `
+	DELETE FROM comments
+	WHERE comment_id = $1
+	`;
+	return db.query(query, [comment_id]).then((result) => {
+		if (result.rowCount !== 0) {
+			return true;
+		}
 	});
 };
 
