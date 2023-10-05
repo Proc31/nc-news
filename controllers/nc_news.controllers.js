@@ -1,4 +1,3 @@
-const { response } = require('../app');
 const api = require('../endpoints.json');
 const {
 	fetchTopics,
@@ -152,7 +151,7 @@ exports.postCommentsByArticleId = (req, res, next) => {
 			next(err);
 		});
 };
-    
+
 exports.patchArticleById = (req, res, next) => {
 	const { article_id } = req.params;
 	const { inc_votes } = req.body;
