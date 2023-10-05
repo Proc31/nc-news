@@ -188,6 +188,37 @@ exports.fetchArticleById = async (article_id) => {
 	});
 };
 
+exports.removeArticleById = async (article_id) => {
+	if (!Number(article_id)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'article_id must be a number',
+		});
+	}
+	await checkExists('articles', 'article_id', article_id);
+
+	const queryComments = `
+	DELETE FROM comments
+	WHERE article_id = $1;
+	`;
+
+	const queryArticles = `
+	DELETE FROM articles
+	WHERE article_id = $1;
+	`;
+
+	return db
+		.query(queryComments, [article_id])
+		.then(() => {
+			return db.query(queryArticles, [article_id]);
+		})
+		.then((result) => {
+			if (result.rowCount !== 0) {
+				return true;
+			}
+		});
+};
+
 exports.fetchCommentsByArticleId = async (article_id) => {
 	if (!Number(article_id)) {
 		return Promise.reject({
