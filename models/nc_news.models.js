@@ -10,6 +10,31 @@ exports.fetchTopics = () => {
 	});
 };
 
+exports.insertTopic = (topic) => {
+	const requiredProperties = ['slug', 'description'];
+	for (const prop of requiredProperties) {
+		if (!topic.hasOwnProperty(prop)) {
+			return Promise.reject({
+				status: 400,
+				msg: 'topic format not valid',
+			});
+		}
+	}
+	const { slug, description } = topic;
+
+	const query = `
+	INSERT INTO topics
+	(slug, description)
+	VALUES
+	($1,$2)
+	RETURNING *
+	`;
+
+	return db.query(query, [slug, description]).then((result) => {
+		return result.rows[0];
+	});
+};
+
 exports.fetchUsers = () => {
 	const query = `
 	SELECT * FROM users;`;
