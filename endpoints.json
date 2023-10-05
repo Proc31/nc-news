@@ -9,6 +9,17 @@
 			"topics": [{ "slug": "football", "description": "Footie!" }]
 		}
 	},
+	"POST /api/topics": {
+		"description": "Posts a topic",
+		"examplePost": {
+			"slug": "dogs",
+			"description": "not just cats"
+		},
+		"exampleResponse": {
+			"slug": "dogs",
+			"description": "not just cats"
+		}
+	},
 	"GET /api/users": {
 		"description": "serves an array of all users",
 		"queries": [],

@@ -57,6 +57,60 @@ describe('GET /api/topics', () => {
 	});
 });
 
+describe('POST /api/topics', () => {
+	describe('Endpoint behaviour', () => {
+		const inputTopic = {
+			slug: 'dogs',
+			description: 'not just cats',
+		};
+		test('POST:200 expects correct status code', () => {
+			return request(app)
+				.post('/api/topics')
+				.send(inputTopic)
+				.expect(200);
+		});
+		test('POST:200 expects topic with correct format', () => {
+			const topicFormat = {
+				slug: expect.any(String),
+				description: expect.any(String),
+			};
+			return request(app)
+				.post('/api/topics')
+				.send(inputTopic)
+				.expect(200)
+				.then(({ body }) => {
+					const topic = body.topic;
+					expect(topic).toMatchObject(topicFormat);
+				});
+		});
+		test('POST:200 expects input not to be mutated', () => {
+			return request(app)
+				.post('/api/topics')
+				.send(inputTopic)
+				.expect(200)
+				.then(({ body }) => {
+					const topic = body.topic;
+					for (const key in topic) {
+						expect(topic[key]).toBe(inputTopic[key]);
+					}
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('POST:400 expect error when input missing data', () => {
+			return request(app)
+				.post('/api/topics')
+				.send({
+					cheese: 'wow',
+					slug: 'dogs',
+				})
+				.then(({ body }) => {
+					expect(body.msg).toBe('topic format not valid');
+				});
+		});
+	});
+});
+
 describe('GET /api/users', () => {
 	describe('Endpoint Behaviour', () => {
 		test('GET:200 expects correct status code', () => {
