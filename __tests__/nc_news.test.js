@@ -146,7 +146,7 @@ describe('GET /api/articles', () => {
 				.get('/api/articles')
 				.then(({ body }) => {
 					const articles = body.articles;
-					expect(articles).toHaveLength(5);
+					expect(articles).toHaveLength(10);
 					const articleFormat = {
 						title: expect.any(String),
 						topic: expect.any(String),
@@ -170,7 +170,7 @@ describe('GET /api/articles', () => {
 				.get('/api/articles')
 				.then(({ body }) => {
 					const articles = body.articles;
-					const correctArr = [2, 1, 2, 11, 2];
+					const correctArr = [2, 1, 0, 0, 0, 2, 11, 2, 0, 0];
 					const testArr = articles.map((article) => {
 						return article.comment_count;
 					});
@@ -240,6 +240,33 @@ describe('GET /api/articles', () => {
 					});
 				});
 		});
+		test('GET:200 expect page size to be changed from default', () => {
+			return request(app)
+				.get('/api/articles?limit=12')
+				.expect(200)
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toHaveLength(12);
+				});
+		});
+		test('GET:200 expect page two to return different data', () => {
+			return request(app)
+				.get('/api/articles?p=2')
+				.expect(200)
+				.then(({ body }) => {
+					const articles = body.articles;
+					expect(articles).toHaveLength(3);
+				});
+		});
+		test('GET:200 expect total_count value to be correct', () => {
+			return request(app)
+				.get('/api/articles?p=2')
+				.expect(200)
+				.then(({ body }) => {
+					const total_count = body.total_count;
+					expect(total_count).toBe(13);
+				});
+		});
 	});
 	describe('Endpoint error handling', () => {
 		test('GET:404 expects error when topic does not exist ', () => {
@@ -264,6 +291,22 @@ describe('GET /api/articles', () => {
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe('invalid sort query');
+				});
+		});
+		test('GET:400 expects error when given invalid p query', () => {
+			return request(app)
+				.get('/api/articles?p=cheese')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('page must be a number');
+				});
+		});
+		test('GET:400 expects error when given invalid limit query', () => {
+			return request(app)
+				.get('/api/articles?limit=cheese')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('limit must be a number');
 				});
 		});
 	});
