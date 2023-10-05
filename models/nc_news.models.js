@@ -60,18 +60,10 @@ exports.fetchArticles = async (topic, sort_by, order, p, limit) => {
 	order = order || 'desc';
 	limit = limit || 10;
 	p = p || 1;
-	if (!Number(p)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'page must be a number',
-		});
-	}
-	if (!Number(limit)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'limit must be a number',
-		});
-	}
+
+	await typeCheck('page', p);
+	await typeCheck('limit', limit);
+
 	if (
 		![
 			'title',
@@ -167,12 +159,7 @@ exports.insertArticle = async (articleInput) => {
 };
 
 exports.fetchArticleById = async (article_id) => {
-	if (!Number(article_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'article_id must be a number',
-		});
-	}
+	await typeCheck('article_id', article_id);
 	await checkExists('articles', 'article_id', article_id);
 
 	const query = `
@@ -189,25 +176,16 @@ exports.fetchArticleById = async (article_id) => {
 };
 
 exports.modifyArticleById = async (article_id, inc_votes) => {
-	if (!Number(article_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'article_id must be a number',
-		});
-	}
+	await typeCheck('article_id', article_id);
+
 	if (inc_votes === undefined) {
 		return Promise.reject({
 			status: 400,
 			msg: 'request must include inc_votes key',
 		});
 	}
-	if (!Number(inc_votes)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'inc_votes must be a number',
-		});
-	}
 
+	await typeCheck('inc_votes', inc_votes);
 	await checkExists('articles', 'article_id', article_id);
 
 	const query = `
@@ -223,12 +201,7 @@ exports.modifyArticleById = async (article_id, inc_votes) => {
 };
 
 exports.removeArticleById = async (article_id) => {
-	if (!Number(article_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'article_id must be a number',
-		});
-	}
+	await typeCheck('article_id', article_id);
 	await checkExists('articles', 'article_id', article_id);
 
 	const queryComments = `
@@ -254,12 +227,7 @@ exports.removeArticleById = async (article_id) => {
 };
 
 exports.fetchCommentsByArticleId = async (article_id) => {
-	if (!Number(article_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'article_id must be a number',
-		});
-	}
+	await typeCheck('article_id', article_id);
 	await checkExists('articles', 'article_id', article_id);
 
 	const query = `
@@ -274,13 +242,7 @@ exports.fetchCommentsByArticleId = async (article_id) => {
 };
 
 exports.insertCommentsByArticleId = async (article_id, username, body) => {
-	if (!Number(article_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'article_id must be a number',
-		});
-	}
-
+	await typeCheck('article_id', article_id);
 	await checkExists('articles', 'article_id', article_id);
 
 	const query = `
@@ -297,44 +259,32 @@ exports.insertCommentsByArticleId = async (article_id, username, body) => {
 };
 
 exports.modifyCommentById = async (comment_id, inc_votes) => {
-	if (!Number(comment_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'comment_id must be a number',
-		});
-	}
+	await typeCheck('comment_id', comment_id);
+
 	if (inc_votes === undefined) {
 		return Promise.reject({
 			status: 400,
 			msg: 'request must include inc_votes key',
 		});
 	}
-	if (!Number(inc_votes)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'inc_votes must be a number',
-		});
-	}
+
+	await typeCheck('inc_votes', inc_votes);
 	await checkExists('comments', 'comment_id', comment_id);
+
 	const query = `
 	UPDATE comments
 	SET votes = $1 + votes
 	WHERE comment_id = $2
 	RETURNING *;
 	`;
+
 	return db.query(query, [inc_votes, comment_id]).then((result) => {
 		return result.rows[0];
 	});
 };
 
 exports.removeCommentById = async (comment_id) => {
-	if (!Number(comment_id)) {
-		return Promise.reject({
-			status: 400,
-			msg: 'comment_id must be a number',
-		});
-	}
-
+	await typeCheck('comment_id', comment_id);
 	await checkExists('comments', 'comment_id', comment_id);
 
 	const query = `
@@ -355,6 +305,15 @@ const checkExists = async (table, column, value) => {
 		return Promise.reject({
 			status: 404,
 			msg: `${column} does not exist`,
+		});
+	}
+};
+
+const typeCheck = async (type, input) => {
+	if (!Number(input)) {
+		return Promise.reject({
+			status: 400,
+			msg: `${type} must be a number`,
 		});
 	}
 };
