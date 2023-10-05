@@ -4,6 +4,7 @@ const db = require('../db/connection');
 const data = require('../db/data/test-data/index');
 const seed = require('../db/seeds/seed');
 const endpoints = require('../endpoints.json');
+const format = require('./test_formats');
 require('jest-sorted');
 
 beforeEach(() => {
@@ -49,8 +50,7 @@ describe('GET /api/topics', () => {
 					const topics = body.topics;
 					expect(topics).toHaveLength(3);
 					topics.forEach((topic) => {
-						expect(typeof topic.slug).toBe('string');
-						expect(typeof topic.description).toBe('string');
+						expect(topic).toMatchObject(format.topic);
 					});
 				});
 		});
@@ -70,17 +70,13 @@ describe('POST /api/topics', () => {
 				.expect(200);
 		});
 		test('POST:200 expects topic with correct format', () => {
-			const topicFormat = {
-				slug: expect.any(String),
-				description: expect.any(String),
-			};
 			return request(app)
 				.post('/api/topics')
 				.send(inputTopic)
 				.expect(200)
 				.then(({ body }) => {
 					const topic = body.topic;
-					expect(topic).toMatchObject(topicFormat);
+					expect(topic).toMatchObject(format.topic);
 				});
 		});
 		test('POST:200 expects input not to be mutated', () => {
@@ -122,13 +118,8 @@ describe('GET /api/users', () => {
 				.then(({ body }) => {
 					const users = body.users;
 					expect(users).toHaveLength(4);
-					const userFormat = {
-						username: expect.any(String),
-						name: expect.any(String),
-						avatar_url: expect.any(String),
-					};
 					users.forEach((user) => {
-						expect(user).toMatchObject(userFormat);
+						expect(user).toMatchObject(format.user);
 					});
 				});
 		});
@@ -160,12 +151,7 @@ describe('GET /api/users/:username', () => {
 				.expect(200)
 				.then(({ body }) => {
 					const user = body.user;
-					const userFormat = {
-						username: expect.any(String),
-						name: expect.any(String),
-						avatar_url: expect.any(String),
-					};
-					expect(user).toMatchObject(userFormat);
+					expect(user).toMatchObject(format.user);
 				});
 		});
 		test('GET:200 expects a user object to have correct data', () => {
@@ -201,21 +187,10 @@ describe('GET /api/articles', () => {
 				.then(({ body }) => {
 					const articles = body.articles;
 					expect(articles).toHaveLength(10);
-					const articleFormat = {
-						title: expect.any(String),
-						topic: expect.any(String),
-						author: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						article_img_url: expect.any(String),
-					};
-
-					articleFormat.comment_count = expect.any(Number);
-					delete articleFormat.body;
-
+					const customArticle = format.article;
+					delete customArticle.body;
 					articles.forEach((article) => {
-						expect(article).toMatchObject(articleFormat);
+						expect(article).toMatchObject(customArticle);
 					});
 				});
 		});
@@ -388,18 +363,7 @@ describe('POST /api/articles', () => {
 				.expect(200)
 				.then(({ body }) => {
 					const article = body.article;
-					const articleFormat = {
-						article_id: expect.any(Number),
-						title: expect.any(String),
-						topic: expect.any(String),
-						author: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						article_img_url: expect.any(String),
-						comment_count: expect.any(Number),
-					};
-					expect(article).toMatchObject(articleFormat);
+					expect(article).toMatchObject(format.article);
 				});
 		});
 		test('POST:200 expects input not to be mutated', () => {
@@ -499,18 +463,7 @@ describe('GET /api/articles/:article_id', () => {
 				.get('/api/articles/1')
 				.then(({ body }) => {
 					const article = body.article;
-					const articleFormat = {
-						author: expect.any(String),
-						title: expect.any(String),
-						article_id: expect.any(Number),
-						body: expect.any(String),
-						topic: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						article_img_url: expect.any(String),
-						comment_count: expect.any(Number),
-					};
-					expect(article).toMatchObject(articleFormat);
+					expect(article).toMatchObject(format.article);
 				});
 		});
 		test('GET:200 expects response to have correct content', () => {
@@ -568,15 +521,9 @@ describe('PATCH /api/articles/:article_id', () => {
 				.send({ inc_votes: 100 })
 				.then(({ body }) => {
 					const article = body.article;
-					const articleFormat = {
-						title: expect.any(String),
-						topic: expect.any(String),
-						author: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						article_img_url: expect.any(String),
-					};
-					expect(article).toMatchObject(articleFormat);
+					const customArticle = format.article;
+					delete customArticle.comment_count;
+					expect(article).toMatchObject(customArticle);
 				});
 		});
 		test('GET:200 expects vote count to be updated when negative supplied', () => {
@@ -678,18 +625,10 @@ describe('GET /api/articles/:article_id/comments', () => {
 			return request(app)
 				.get('/api/articles/1/comments')
 				.then(({ body }) => {
-					const articleFormat = {
-						comment_id: expect.any(Number),
-						votes: expect.any(Number),
-						created_at: expect.any(String),
-						author: expect.any(String),
-						body: expect.any(String),
-						article_id: expect.any(Number),
-					};
 					const comments = body.comments;
 					expect(comments).toHaveLength(11);
 					comments.forEach((comment) => {
-						expect(comment).toMatchObject(articleFormat);
+						expect(comment).toMatchObject(format.comment);
 					});
 				});
 		});
@@ -752,14 +691,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 				})
 				.then(({ body }) => {
 					const comment = body.comment;
-					const commentFormat = {
-						article_id: expect.any(Number),
-						author: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-					};
-					expect(commentFormat).toMatchObject(comment);
+					expect(comment).toMatchObject(format.comment);
 				});
 		});
 		test('GET:201 expects original data not to be modified by POST and that article ID is correct', () => {
@@ -845,14 +777,7 @@ describe('PATCH /api/comments/:comment_id', () => {
 				.expect(200)
 				.then(({ body }) => {
 					const comment = body.comment;
-					const commentFormat = {
-						article_id: expect.any(Number),
-						author: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-					};
-					expect(comment).toMatchObject(commentFormat);
+					expect(comment).toMatchObject(format.comment);
 				});
 		});
 		test('PATCH:200 expects comment vote property to be updated for pos number', () => {
