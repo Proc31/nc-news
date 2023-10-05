@@ -84,6 +84,9 @@
 			}
 		}
 	},
+	"DELETE /api/articles/:article_id": {
+		"description": "Delete an article and child comments from the database using the article_id"
+	},
 	"GET /api/articles/:article_id/comments": {
 		"description": "Serves the comments for a specific article",
 		"exampleResponse": {

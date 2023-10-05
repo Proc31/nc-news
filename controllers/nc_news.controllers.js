@@ -13,6 +13,7 @@ const {
 	modifyCommentById,
 	insertArticle,
 	insertTopic,
+	removeArticleById,
 } = require('../models/nc_news.models');
 
 exports.getApi = (req, res, next) => {
@@ -38,7 +39,6 @@ exports.postTopic = (req, res, next) => {
 			next(err);
 		});
 };
-
 
 exports.getUsers = (req, res, next) => {
 	return fetchUsers().then((response) => {
@@ -86,6 +86,19 @@ exports.getArticleById = (req, res, next) => {
 	fetchArticleById(article_id)
 		.then((response) => {
 			res.status(200).send({ article: response });
+		})
+		.catch((err) => {
+			next(err);
+		});
+};
+
+exports.deleteArticleById = (req, res, next) => {
+	const { article_id } = req.params;
+	removeArticleById(article_id)
+		.then((response) => {
+			if (response) {
+				res.status(204).send();
+			}
 		})
 		.catch((err) => {
 			next(err);

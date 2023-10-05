@@ -554,6 +554,46 @@ describe('GET /api/articles/:article_id', () => {
 	});
 });
 
+describe('DELETE /api/articles/:article_id', () => {
+	describe('Endpoint behaviour', () => {
+		test('DELETE:204 expects correct status code', () => {
+			return request(app).delete('/api/articles/1').expect(204);
+		});
+		test('DELETE:204 expects article to be deleted', () => {
+			return request(app)
+				.delete('/api/articles/1')
+				.then(() => {
+					return request(app).delete('/api/articles/1').expect(404);
+				});
+		});
+		test('DELETE:204 expects comments to be deleted', () => {
+			return request(app)
+				.delete('/api/articles/1')
+				.then(() => {
+					return request(app).delete('/api/comment/2').expect(404);
+				});
+		});
+	});
+	describe('Endpoint error handling', () => {
+		test('DELETE:400 expects error when article_id is an invalid type', () => {
+			return request(app)
+				.delete('/api/articles/cheese')
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id must be a number');
+				});
+		});
+		test('DELETE:404 expects error when comment_id does not exist', () => {
+			return request(app)
+				.delete('/api/articles/999')
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe('article_id does not exist');
+				});
+		});
+	});
+});
+
 describe('GET /api/articles/:article_id/comments', () => {
 	describe('Endpoint Behaviour', () => {
 		test('GET:200 expects correct status code', () => {
