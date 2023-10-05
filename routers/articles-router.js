@@ -1,12 +1,12 @@
 const articlesRouter = require('express').Router();
 const {
 	getArticles,
+	postArticle,
 	getArticleById,
+	patchArticleById,
+	deleteArticleById,
 	getCommentsByArticleId,
 	postCommentsByArticleId,
-	patchArticleById,
-	postArticle,
-	deleteArticleById,
 } = require('../controllers/nc_news.controllers');
 
 articlesRouter.route('/').get(getArticles).post(postArticle);

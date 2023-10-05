@@ -29,6 +29,14 @@
 			"avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
 		}
 	},
+	"GET /api/users/:username": {
+		"description": "serves user data for a requested user",
+		"exampleResponse": {
+			"username": "butter_bridge",
+			"name": "jonny",
+			"avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+		}
+	},
 	"GET /api/articles": {
 		"description": "serves an array of all articles",
 		"queries": ["author", "topic", "sort_by", "order", "p", "limit"],
@@ -84,6 +92,22 @@
 			}
 		}
 	},
+	"PATCH /api/articles/:article_id": {
+		"description": "Patches an articles vote count",
+		"examplePost": {
+			"inc_votes": 100
+		},
+		"exampleResponse": {
+			"comment": {
+				"comment_id": 1,
+				"votes": 200,
+				"created_at": 1586179020000,
+				"author": "lurker",
+				"body": "not enough cheese",
+				"article_id": 9
+			}
+		}
+	},
 	"DELETE /api/articles/:article_id": {
 		"description": "Delete an article and child comments from the database using the article_id"
 	},
@@ -102,30 +126,11 @@
 			]
 		}
 	},
-	"DELETE /api/comments/:comment_id": {
-		"description": "Delete a commend from the database using the comment_id"
-	},
 	"POST /api/articles/:article_id/comments": {
 		"description": "Posts a comment for a given article ID",
 		"examplePost": {
 			"username": "lurker",
 			"body": "not enough cheese"
-		}
-	},
-	"PATCH /api/articles/:article_id": {
-		"description": "Patches an articles vote count",
-		"examplePost": {
-			"inc_votes": 100
-		},
-		"exampleResponse": {
-			"comment": {
-				"comment_id": 1,
-				"votes": 200,
-				"created_at": 1586179020000,
-				"author": "lurker",
-				"body": "not enough cheese",
-				"article_id": 9
-			}
 		}
 	},
 	"PATCH /api/comment/:comment_id": {
@@ -143,5 +148,8 @@
 				"article_id": 9
 			}
 		}
+	},
+	"DELETE /api/comments/:comment_id": {
+		"description": "Delete a commend from the database using the comment_id"
 	}
 }
