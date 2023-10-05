@@ -38,11 +38,11 @@ npm run test
 
 ## Version requirements
 
-#####Node.js 
+##### Node.js 
 ```
 20.5.1
 ```
-#####Postgres
+##### Postgres
 ```
 PSQL Version: 14.9
 Server Version: 16.0
