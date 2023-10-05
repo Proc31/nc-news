@@ -93,7 +93,7 @@ describe('POST /api/topics', () => {
 		});
 	});
 	describe('Endpoint error handling', () => {
-		test('POST:400 expect error when input missing data', () => {
+		test('POST:400 expects error when input missing data', () => {
 			return request(app)
 				.post('/api/topics')
 				.send({
@@ -269,7 +269,7 @@ describe('GET /api/articles', () => {
 					});
 				});
 		});
-		test('GET:200 expect page size to be changed from default', () => {
+		test('GET:200 expects page size to be changed from default', () => {
 			return request(app)
 				.get('/api/articles?limit=12')
 				.expect(200)
@@ -278,7 +278,7 @@ describe('GET /api/articles', () => {
 					expect(articles).toHaveLength(12);
 				});
 		});
-		test('GET:200 expect page two to return different data', () => {
+		test('GET:200 expects page two to return different data', () => {
 			return request(app)
 				.get('/api/articles?p=2')
 				.expect(200)
@@ -287,7 +287,7 @@ describe('GET /api/articles', () => {
 					expect(articles).toHaveLength(3);
 				});
 		});
-		test('GET:200 expect total_count value to be correct', () => {
+		test('GET:200 expects total_count value to be correct', () => {
 			return request(app)
 				.get('/api/articles?p=2')
 				.expect(200)
@@ -394,7 +394,7 @@ describe('POST /api/articles', () => {
 		});
 	});
 	describe('Endpoint error handling', () => {
-		test('POST:400 expect error when input missing data', () => {
+		test('POST:400 expects error when input missing data', () => {
 			return request(app)
 				.post('/api/articles')
 				.send({
@@ -408,7 +408,7 @@ describe('POST /api/articles', () => {
 					expect(body.msg).toBe('article format not valid');
 				});
 		});
-		test('POST:400 expect error when data not valid type', () => {
+		test('POST:400 expects error when data not valid type', () => {
 			return request(app)
 				.post('/api/articles')
 				.send({
@@ -422,7 +422,7 @@ describe('POST /api/articles', () => {
 					expect(body.msg).toBe('username does not exist');
 				});
 		});
-		test('POST:400 expect error when author does not exist', () => {
+		test('POST:400 expects error when author does not exist', () => {
 			return request(app)
 				.post('/api/articles')
 				.send({
@@ -436,7 +436,7 @@ describe('POST /api/articles', () => {
 					expect(body.msg).toBe('username does not exist');
 				});
 		});
-		test('POST:400 expect error when topic does not exist', () => {
+		test('POST:400 expects error when topic does not exist', () => {
 			return request(app)
 				.post('/api/articles')
 				.send({
@@ -509,13 +509,13 @@ describe('GET /api/articles/:article_id', () => {
 
 describe('PATCH /api/articles/:article_id', () => {
 	describe('Endpoint Behaviour', () => {
-		test('GET:200 expects correct status code', () => {
+		test('PATCH:200 expects correct status code', () => {
 			return request(app)
 				.patch('/api/articles/1')
 				.send({ inc_votes: 100 })
 				.expect(200);
 		});
-		test('GET:200 expects response of updated article', () => {
+		test('PATCH:200 expects response of updated article', () => {
 			return request(app)
 				.patch('/api/articles/1')
 				.send({ inc_votes: 100 })
@@ -526,7 +526,7 @@ describe('PATCH /api/articles/:article_id', () => {
 					expect(article).toMatchObject(customArticle);
 				});
 		});
-		test('GET:200 expects vote count to be updated when negative supplied', () => {
+		test('PATCH:200 expects vote count to be updated when negative supplied', () => {
 			return request(app)
 				.patch('/api/articles/1')
 				.send({ inc_votes: -50 })
@@ -537,7 +537,7 @@ describe('PATCH /api/articles/:article_id', () => {
 		});
 	});
 	describe('Endpoint error handling', () => {
-		test('GET:404 expects error when ID does not exist', () => {
+		test('PATCH:404 expects error when ID does not exist', () => {
 			return request(app)
 				.patch('/api/articles/600')
 				.send({ inc_votes: 100 })
@@ -546,7 +546,7 @@ describe('PATCH /api/articles/:article_id', () => {
 					expect(body.msg).toBe('article_id does not exist');
 				});
 		});
-		test('GET:400 expects error when article_id is an invalid type', () => {
+		test('PATCH:400 expects error when article_id is an invalid type', () => {
 			return request(app)
 				.patch('/api/articles/cheese')
 				.send({ inc_votes: 100 })
@@ -555,7 +555,7 @@ describe('PATCH /api/articles/:article_id', () => {
 					expect(body.msg).toBe('article_id must be a number');
 				});
 		});
-		test('GET:400 expects error when inc_votes is an invalid type', () => {
+		test('PATCH:400 expects error when inc_votes is an invalid type', () => {
 			return request(app)
 				.patch('/api/articles/1')
 				.send({ inc_votes: 'cheese' })
@@ -564,7 +564,7 @@ describe('PATCH /api/articles/:article_id', () => {
 					expect(body.msg).toBe('inc_votes must be a number');
 				});
 		});
-		test('GET:400 expects error when ID not a valid type', () => {
+		test('PATCH:400 expects error when ID not a valid type', () => {
 			return request(app)
 				.patch('/api/articles/1')
 				.send({ increaseMyVotes: 100 })
@@ -673,7 +673,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 
 describe('POST /api/articles/:article_id/comments', () => {
 	describe('Endpoint Behaviour', () => {
-		test('GET:201 expects correct status code', () => {
+		test('POST:201 expects correct status code', () => {
 			return request(app)
 				.post('/api/articles/1/comments')
 				.send({
@@ -682,7 +682,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 				})
 				.expect(201);
 		});
-		test('GET:201 expects inserted comment back with correct format', () => {
+		test('POST:201 expects inserted comment back with correct format', () => {
 			return request(app)
 				.post('/api/articles/1/comments')
 				.send({
@@ -694,7 +694,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 					expect(comment).toMatchObject(format.comment);
 				});
 		});
-		test('GET:201 expects original data not to be modified by POST and that article ID is correct', () => {
+		test('POST:201 expects original data not to be modified by POST and that article ID is correct', () => {
 			const post = {
 				username: 'lurker',
 				body: 'not enough cheese',
@@ -711,7 +711,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 		});
 	});
 	describe('Endpoint error handling', () => {
-		test('GET:404 expects error when ID does not exist', () => {
+		test('POST:404 expects error when ID does not exist', () => {
 			return request(app)
 				.post('/api/articles/600/comments')
 				.send({
@@ -723,7 +723,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 					expect(body.msg).toBe('article_id does not exist');
 				});
 		});
-		test('GET:400 expects error when ID is an invalid type', () => {
+		test('POST:400 expects error when ID is an invalid type', () => {
 			return request(app)
 				.post('/api/articles/cheese/comments')
 				.send({
@@ -735,7 +735,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 					expect(body.msg).toBe('article_id must be a number');
 				});
 		});
-		test('GET:400 expects error when username is an invalid type', () => {
+		test('POST:400 expects error when username is an invalid type', () => {
 			return request(app)
 				.post('/api/articles/1/comments')
 				.send({
@@ -747,7 +747,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 					expect(body.msg).toBe('Invalid post contents');
 				});
 		});
-		test('GET:400 expects error when username is not recognised', () => {
+		test('POST:400 expects error when username is not recognised', () => {
 			return request(app)
 				.post('/api/articles/1/comments')
 				.send({
