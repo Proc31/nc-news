@@ -1,6 +1,5 @@
 const db = require('../db/connection');
 const format = require('pg-format');
-const comments = require('../db/data/test-data/comments');
 
 exports.fetchTopics = () => {
 	const query = `
@@ -30,11 +29,24 @@ exports.fetchUserById = async (username) => {
 	});
 };
 
-exports.fetchArticles = async (topic, sort_by, order) => {
+exports.fetchArticles = async (topic, sort_by, order, p, limit) => {
 	const queryValues = [];
 	sort_by = sort_by || 'created_at';
 	order = order || 'desc';
-
+	limit = limit || 10;
+	p = p || 1;
+	if (!Number(p)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'page must be a number',
+		});
+	}
+	if (!Number(limit)) {
+		return Promise.reject({
+			status: 400,
+			msg: 'limit must be a number',
+		});
+	}
 	if (
 		![
 			'title',
@@ -56,7 +68,7 @@ exports.fetchArticles = async (topic, sort_by, order) => {
 	let query = `
 	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
 	FROM articles
-	JOIN comments ON articles.article_id = comments.article_id
+	FULL OUTER JOIN comments ON articles.article_id = comments.article_id
 	`;
 
 	if (topic) {
@@ -71,7 +83,15 @@ exports.fetchArticles = async (topic, sort_by, order) => {
 	`;
 
 	return db.query(query, queryValues).then((result) => {
-		return result.rows;
+		const total_count = result.rows.length;
+		const offset = (p - 1) * limit;
+		queryValues.push(limit, offset);
+		query += `LIMIT $${queryValues.length - 1} OFFSET $${
+			queryValues.length
+		}`;
+		return db.query(query, queryValues).then((result) => {
+			return { result: result.rows, total_count };
+		});
 	});
 };
 

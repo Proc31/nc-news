@@ -46,10 +46,13 @@ exports.getUserById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-	const { topic, sort_by, order } = req.query;
-	fetchArticles(topic, sort_by, order)
+	const { topic, sort_by, order, p, limit } = req.query;
+	fetchArticles(topic, sort_by, order, p, limit)
 		.then((response) => {
-			res.status(200).send({ articles: response });
+			res.status(200).send({
+				articles: response.result,
+				total_count: response.total_count,
+			});
 		})
 		.catch((err) => {
 			next(err);
