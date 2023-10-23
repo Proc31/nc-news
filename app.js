@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const { getApi } = require('./controllers/nc_news.controllers');
 
 const articlesRouter = require('./routers/articles-router');
@@ -7,6 +8,7 @@ const topicsRouter = require('./routers/topics-router');
 const usersRouter = require('./routers/users-router');
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.get('/api', getApi);
