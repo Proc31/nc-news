@@ -81,7 +81,7 @@ exports.fetchArticles = async (topic, sort_by, order, p, limit) => {
 	);
 
 	let query = `
-	SELECT articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
+	SELECT articles.article_id,articles.author,title,topic,articles.created_at,articles.votes,article_img_url, CAST(COUNT(comments.article_id)AS INT) AS comment_count
 	FROM articles
 	FULL OUTER JOIN comments ON articles.article_id = comments.article_id
 	`;
@@ -93,7 +93,7 @@ exports.fetchArticles = async (topic, sort_by, order, p, limit) => {
 	}
 
 	query += `
-	GROUP BY articles.author,title,topic,articles.created_at,articles.votes,article_img_url
+	GROUP BY articles.article_id,articles.author,title,topic,articles.created_at,articles.votes,article_img_url
 	ORDER BY ${sort_by} ${order}
 	`;
 

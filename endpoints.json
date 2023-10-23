@@ -43,6 +43,7 @@
 		"exampleResponse": {
 			"articles": [
 				{
+					"article_id": 1,
 					"title": "Seafood substitutions are increasing",
 					"topic": "cooking",
 					"author": "weegembump",
